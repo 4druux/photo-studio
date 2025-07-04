@@ -1,0 +1,202 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X } from "lucide-react";
+
+function AppHeader() {
+  const [isTop, setIsTop] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("home");
+
+  // Navigasi data untuk one-page scroll
+  const navLinks = [
+    { href: "#home", label: "Home" },
+    { href: "#about", label: "About" },
+    { href: "#gallery", label: "Gallery" },
+    { href: "#schedule", label: "Schedule" },
+  ];
+
+  // Efek untuk deteksi scroll header
+  useEffect(() => {
+    const handleScroll = () => setIsTop(window.scrollY <= 50);
+    window.addEventListener("scroll", handleScroll);
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Efek untuk mengunci scroll body saat menu mobile terbuka
+  useEffect(() => {
+    document.body.style.overflow = isMobileMenuOpen ? "hidden" : "unset";
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isMobileMenuOpen]);
+
+  // Efek untuk mendeteksi section aktif saat scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      { rootMargin: "-30% 0px -70% 0px" } // Memicu saat section berada di 30% atas layar
+    );
+
+    navLinks.forEach((link) => {
+      const element = document.querySelector(link.href);
+      if (element) {
+        observer.observe(element);
+      }
+    });
+
+    return () => observer.disconnect();
+  }, [navLinks]);
+
+  // Fungsi untuk smooth scroll
+  const handleScrollLink = (e, href) => {
+    e.preventDefault();
+    const element = document.querySelector(href);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+    closeMenu();
+  };
+
+  const closeMenu = () => setIsMobileMenuOpen(false);
+
+  // Class untuk styling link
+  const navLinkClass = (path) =>
+    `relative text-md font-semibold text-gray-500 transition-colors duration-300 group`;
+
+  const navLinkSpanClass = (path) =>
+    `absolute bottom-[-6px] left-1/2 -translate-x-1/2 h-0.5 bg-sky-600 transition-all duration-300 ease-out ${
+      `#${activeSection}` === path ? "w-1/2" : "w-0 group-hover:w-full"
+    }`;
+
+  const mobileNavLinkClass = (path) =>
+    `block py-3 px-4 text-lg font-medium rounded-xl transition-colors ${
+      `#${activeSection}` === path ? "bg-sky-100 text-sky-600" : "text-gray-500"
+    }`;
+
+  // Varian animasi (tidak berubah)
+  const overlayVariants = { visible: { opacity: 1 }, hidden: { opacity: 0 } };
+  const menuPanelVariants = {
+    hidden: { x: "100%" },
+    visible: {
+      x: 0,
+      transition: { duration: 0.3, ease: "easeInOut", staggerChildren: 0.1 },
+    },
+    exit: { x: "100%", transition: { duration: 0.2, ease: "easeInOut" } },
+  };
+  const itemVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: { opacity: 1, x: 0 },
+  };
+
+  return (
+    <>
+      <header
+        className={`sticky top-0 z-40 transition-all duration-300 ${
+          isTop ? "bg-gray-50" : "bg-white shadow-md"
+        }`}
+      >
+        <div className="container mx-auto flex items-center justify-between px-4 py-4 lg:py-6">
+          <a href="#home" onClick={(e) => handleScrollLink(e, "#home")}>
+            <Image
+              src="/images/Logo/logo-name.png"
+              alt="logo"
+              width={180}
+              height={20}
+              priority={true}
+              className="cursor-pointer w-[150px] md:w-[180px]"
+            />
+          </a>
+
+          <nav className="hidden md:flex items-center space-x-12">
+            {navLinks.map((link) => (
+              <div key={link.href} className="relative">
+                <a
+                  href={link.href}
+                  onClick={(e) => handleScrollLink(e, link.href)}
+                  className={navLinkClass(link.href)}
+                >
+                  <span
+                    className={
+                      `#${activeSection}` === link.href ? "text-sky-600" : ""
+                    }
+                  >
+                    {link.label}
+                  </span>
+                </a>
+                <span className={navLinkSpanClass(link.href)} />
+              </div>
+            ))}
+          </nav>
+
+          <div className="md:hidden">
+            <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              aria-label="Buka menu"
+            >
+              <Menu className="w-7 h-7 text-gray-700" />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            <motion.div
+              key="overlay"
+              variants={overlayVariants}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              onClick={closeMenu}
+              className="fixed inset-0 bg-black/60 z-50"
+            />
+            <motion.div
+              key="menu-panel"
+              variants={menuPanelVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="fixed top-0 right-0 h-full w-3/5 max-w-xs bg-gray-50 shadow-xl rounded-l-2xl z-50 flex flex-col"
+            >
+              <div className="flex justify-between items-center p-5 border-b">
+                <h2 className="font-semibold text-lg text-gray-600">Menu</h2>
+                <button onClick={closeMenu} aria-label="Tutup menu">
+                  <X className="w-7 h-7 text-gray-600" />
+                </button>
+              </div>
+              <motion.nav
+                className="flex flex-col p-6 space-y-2"
+                variants={menuPanelVariants}
+              >
+                {navLinks.map((link) => (
+                  <motion.div key={link.href} variants={itemVariants}>
+                    <a
+                      href={link.href}
+                      onClick={(e) => handleScrollLink(e, link.href)}
+                      className={mobileNavLinkClass(link.href)}
+                    >
+                      {link.label}
+                    </a>
+                  </motion.div>
+                ))}
+              </motion.nav>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
+export default AppHeader;
