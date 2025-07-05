@@ -23,18 +23,77 @@ const itemVariants = {
   visible: { opacity: 1, scale: 1 },
 };
 
+/**
+ * Fungsi untuk menentukan ukuran span grid berdasarkan rasio aspek gambar.
+ * @param {number | undefined} aspectRatio - Rasio aspek gambar (width / height).
+ * @returns {string} String kelas Tailwind CSS untuk col-span dan row-span.
+ */
+const getGridSpan = (aspectRatio) => {
+  // Fallback untuk memastikan kode tidak error jika aspectRatio tidak ada.
+  if (typeof aspectRatio !== 'number' || !aspectRatio) {
+    return "col-span-1 md:col-span-1 md:row-span-1";
+  }
+
+  // Landscape (Lebar)
+  if (aspectRatio > 1.4) { // Contoh: 16/9 = 1.77
+    return "col-span-2 md:col-span-2 md:row-span-1";
+  }
+  // Tall (Tinggi)
+  if (aspectRatio < 0.7) { // Contoh: 9/16 = 0.56
+    return "col-span-1 md:col-span-1 md:row-span-2";
+  }
+  // Portrait (Sedikit Tinggi)
+  if (aspectRatio < 0.9) { // Contoh: 4/5 = 0.8
+    return "col-span-1 md:col-span-1 md:row-span-2";
+  }
+  // Square atau mendekati square
+  return "col-span-1 md:col-span-1 md:row-span-1";
+};
+
+
 export default function KelolaGaleri() {
   const { data, error, isLoading } = useSWR("/api/gallery", fetcher);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const { mutate } = useSWRConfig();
 
   const handleDelete = async (filename) => {
-    if (
-      !confirm(
-        `Apakah Anda yakin ingin menghapus gambar "${filename}" secara permanen?`
-      )
-    ) {
-      return;
+    // Mengganti confirm() bawaan dengan modal kustom atau toast konfirmasi
+    // untuk pengalaman pengguna yang lebih baik di aplikasi modern.
+    const confirmed = await new Promise((resolve) => {
+        toast(
+            (t) => (
+                <div className="flex flex-col items-center gap-4">
+                    <span className="text-center">
+                        Yakin ingin menghapus <b>{filename}</b>?
+                    </span>
+                    <div className="flex gap-3">
+                        <button
+                            onClick={() => {
+                                toast.dismiss(t.id);
+                                resolve(true);
+                            }}
+                            className="px-4 py-2 text-sm font-semibold text-white bg-red-500 rounded-lg hover:bg-red-600"
+                        >
+                            Ya, Hapus
+                        </button>
+                        <button
+                            onClick={() => {
+                                toast.dismiss(t.id);
+                                resolve(false);
+                            }}
+                            className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
+                        >
+                            Batal
+                        </button>
+                    </div>
+                </div>
+            ),
+            { duration: 6000 }
+        );
+    });
+
+    if (!confirmed) {
+        return;
     }
 
     try {
@@ -70,7 +129,7 @@ export default function KelolaGaleri() {
   if (error)
     return (
       <div className="p-8 text-center text-red-500">
-        Gagal memuat data galeri.
+        Gagal memuat data galeri. Pastikan API Anda sudah mengirim `aspectRatio`.
       </div>
     );
   if (isLoading)
@@ -80,20 +139,22 @@ export default function KelolaGaleri() {
       </div>
     );
 
+  // Fallback jika data tidak ada atau formatnya salah
+  if (!data || !data.images) {
+      return (
+          <div className="p-8 text-center text-gray-500">
+              Tidak ada data gambar yang ditemukan.
+          </div>
+      );
+  }
+
   const { images, categories } = data;
   const allCategories = ["All", ...categories];
 
   const filteredImages =
     selectedCategory === "All"
       ? images
-      : images.filter((image) => image.categories.includes(selectedCategory));
-
-  const getSpanClass = (index) => {
-    const patternIndex = index % 11;
-    if (patternIndex === 0) return "md:col-span-2 md:row-span-2";
-    if (patternIndex === 5 || patternIndex === 9) return "md:row-span-2";
-    return "md:col-span-1 md:row-span-1";
-  };
+      : images.filter((image) => image.categories && image.categories.includes(selectedCategory));
 
   return (
     <div className="p-0 lg:p-8">
@@ -112,11 +173,11 @@ export default function KelolaGaleri() {
               key={category}
               onClick={() => setSelectedCategory(category)}
               className={`px-4 py-1.5 text-sm font-semibold rounded-full transition-all duration-300
-                        ${
-                          selectedCategory === category
-                            ? "bg-sky-500 text-white shadow"
-                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                        }`}
+                            ${
+                              selectedCategory === category
+                                ? "bg-sky-500 text-white shadow"
+                                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                            }`}
             >
               {category}
             </button>
@@ -131,16 +192,18 @@ export default function KelolaGaleri() {
         ) : (
           <motion.div
             key={selectedCategory}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[250px]"
+            // Mengubah kelas grid untuk layout yang lebih dinamis
+            className="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[150px] md:auto-rows-[200px]"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
           >
-            {filteredImages.map((image, index) => (
+            {filteredImages.map((image) => (
               <motion.div
                 key={image.src}
-                className={`relative group overflow-hidden rounded-lg shadow-sm ${getSpanClass(
-                  index
+                // Menggunakan fungsi getGridSpan baru berdasarkan aspectRatio gambar
+                className={`relative group overflow-hidden rounded-lg shadow-sm ${getGridSpan(
+                  image.aspectRatio
                 )}`}
                 variants={itemVariants}
               >
@@ -162,7 +225,7 @@ export default function KelolaGaleri() {
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/70 to-transparent">
                   <p className="text-white text-xs font-medium truncate">
-                    {image.categories.join(", ")}
+                    {image.categories && image.categories.join(", ")}
                   </p>
                 </div>
               </motion.div>
