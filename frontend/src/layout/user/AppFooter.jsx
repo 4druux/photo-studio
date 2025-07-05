@@ -20,8 +20,8 @@ const AppFooter = () => {
       <div className="container mx-auto flex flex-col xl:flex-row items-start justify-between px-4 gap-4 xl:gap-10 py-10 text-sm">
         <div className="lg:w-3/4">
           <Image
-            src="/images/Logo/logo.png"
-            alt="foto-logo"
+            src="/images/logo.png"
+            alt="Antika Studio logo"
             width={180}
             height={20}
             priority={true}

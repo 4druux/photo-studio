@@ -54,3 +54,9 @@
     transform: scale(1);
   }
 }
+
+.custom-toast {
+  font-size: 13px;
+  font-weight: 450;
+  border-radius: 999px !important;
+}

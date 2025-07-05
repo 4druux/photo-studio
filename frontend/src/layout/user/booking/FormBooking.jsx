@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useSearchParams, useRouter } from "next/navigation";
 import { ArrowLeft, Loader2 } from "lucide-react";
+import { schedulePackages } from "@/data/packages";
 import BookingCalendar from "@/components/BookingCalendar";
-import { useRouter } from "next/navigation";
+import PackageNotFound from "@/layout/user/booking/PackageNotFound";
 
 const PHONE_PREFIX = "+62";
 
@@ -22,7 +24,15 @@ const formatPhoneNumber = (value) => {
   return numbers;
 };
 
-export default function FormBooking({ selectedPackage }) {
+export default function FormBooking() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const paketQuery = searchParams.get("paket");
+
+  const selectedPackage = schedulePackages.find(
+    (pkg) => pkg.query === paketQuery
+  );
+
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -35,7 +45,6 @@ export default function FormBooking({ selectedPackage }) {
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
 
   const validatePhoneNumber = (rawNumber) => {
     let error = "";
@@ -110,7 +119,7 @@ export default function FormBooking({ selectedPackage }) {
     };
 
     try {
-      const response = await fetch("/api/booking", {
+      const response = await fetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -121,13 +130,17 @@ export default function FormBooking({ selectedPackage }) {
       setFormData({ name: "", phone: "", description: "" });
       setFormattedPhone("");
       setBookingDetails({ date: null, time: null });
-      router.push(`/booking?id=${result.booking.id}`);
+      router.push(`/booking?id=${result.booking.publicId}`);
     } catch (error) {
       setErrors({ submit: error.message || "Terjadi kesalahan pada server." });
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (!selectedPackage) {
+    return <PackageNotFound />;
+  }
 
   const { title, features, price } = selectedPackage;
   const isPhoneInvalid = errors.phone || errors.phoneFormat;
@@ -136,7 +149,7 @@ export default function FormBooking({ selectedPackage }) {
     <div className="min-h-screen p-0 md:p-12">
       <div className="max-w-2xl mx-auto bg-white p-4 md:p-6 rounded-2xl shadow-md">
         <div className="flex items-center text-gray-700 mb-2">
-          <Link href="/">
+          <Link href="/#schedule">
             <ArrowLeft className="inline-block mr-1 cursor-pointer hover:scale-105 transition-transform duration-300" />
           </Link>
           <h2 className="text-lg lg:text-xl font-semibold">Formulir Booking</h2>

@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import AppHeader from "@/layout/AppHeader";
-import AppFooter from "@/layout/AppFooter";
+import AppHeader from "@/layout/user/AppHeader";
+import AppFooter from "@/layout/user/AppFooter";
 
 export default function MainLayout({ children }) {
   const pathname = usePathname();
@@ -15,7 +15,18 @@ export default function MainLayout({ children }) {
 
   useEffect(() => {
     if (hasMounted) {
-      window.scrollTo(0, 0);
+      const hash = window.location.hash;
+
+      if (hash) {
+        setTimeout(() => {
+          const element = document.querySelector(hash);
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth" });
+          }
+        }, 100);
+      } else {
+        window.scrollTo(0, 0);
+      }
     }
   }, [pathname, hasMounted]);
 

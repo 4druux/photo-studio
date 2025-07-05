@@ -105,15 +105,15 @@ function AppHeader() {
           isTop ? "bg-gray-50" : "bg-white shadow-md"
         }`}
       >
-        <div className="container mx-auto flex items-center justify-between px-4 py-4 lg:py-6">
+        <div className="container mx-auto flex items-center justify-between px-4 py-4">
           <a href="#home" onClick={(e) => handleScrollLink(e, "#home")}>
             <Image
-              src="/images/Logo/logo-name.png"
-              alt="logo"
+              src="/images/logo.png"
+              alt="Antika Studio logo"
               width={180}
               height={20}
               priority={true}
-              className="cursor-pointer w-[150px] md:w-[180px]"
+              className="cursor-pointer w-[100px] md:w-[150px]"
             />
           </a>
 
@@ -143,7 +143,7 @@ function AppHeader() {
               onClick={() => setIsMobileMenuOpen(true)}
               aria-label="Buka menu"
             >
-              <Menu className="w-7 h-7 text-gray-700" />
+              <Menu className="w-5 h-5 text-gray-700" />
             </button>
           </div>
         </div>

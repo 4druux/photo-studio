@@ -2,6 +2,7 @@
 
 import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
+import { nanoid } from "nanoid";
 
 const prisma = new PrismaClient();
 
@@ -15,6 +16,7 @@ export async function POST(request) {
 
     const newBooking = await prisma.booking.create({
       data: {
+        publicId: nanoid(10),
         nama: data.nama,
         telepon: data.telepon,
         paket: data.paket,

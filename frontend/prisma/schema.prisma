@@ -9,15 +9,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
 model Booking {
   id        Int      @id @default(autoincrement())
+  publicId  String   @unique 
   nama      String
   telepon   String
+  paket     String
   tanggal   DateTime
-  paket     String 
-  catatan   String? 
-  status    String   @default("WAITING") 
+  catatan   String?
+  status    BookingStatus @default(PENDING)
   createdAt DateTime @default(now())
-
-  @@map("bookings")
+  updatedAt DateTime @updatedAt
 }

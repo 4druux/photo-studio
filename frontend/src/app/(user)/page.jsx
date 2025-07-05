@@ -1,8 +1,8 @@
 import React from "react";
-import Carousel from "@/layout/home/Carousel";
-import About from "@/layout/home/About";
-import Gallery from "@/layout/home/Gallery";
-import Schedule from "@/layout/home/Schedule";
+import Carousel from "@/layout/user/home/Carousel";
+import About from "@/layout/user/home/About";
+import Gallery from "@/layout/user/home/Gallery";
+import Schedule from "@/layout/user/home/Schedule";
 
 const page = () => {
   return (
