@@ -9,8 +9,11 @@ import {
   X,
   ChevronFirst,
   ChevronLast,
+  LayoutDashboard,
 } from "lucide-react";
 import Image from "next/image";
+
+// NavLink component remains the same
 
 const NavLink = ({ item, expanded }) => {
   const pathname = usePathname();
@@ -24,7 +27,7 @@ const NavLink = ({ item, expanded }) => {
           transition-colors group
           ${
             isActive
-              ? "bg-gradient-to-tr from-sky-200 to-sky-100 text-sky-800"
+              ? "bg-gradient-to-tr from-sky-200 to-sky-100 text-sky-600"
               : "hover:bg-sky-50 text-gray-600"
           }
         `}
@@ -41,7 +44,7 @@ const NavLink = ({ item, expanded }) => {
           <div
             className={`
             absolute left-full rounded-md px-2 py-1 ml-6
-            bg-sky-100 text-sky-800 text-xs
+            bg-sky-100 text-sky-600 text-xs
             invisible opacity-20 -translate-x-3 transition-all
             group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
           `}
@@ -71,6 +74,11 @@ export default function Sidebar({
       icon: <ImageUp size={20} />,
       href: "/admin/upload-gambar",
     },
+    {
+      label: "Kelola Galeri",
+      icon: <LayoutDashboard size={20} />,
+      href: "/admin/kelola-galeri",
+    },
   ];
 
   const mobileSidebarVariants = {
@@ -80,7 +88,7 @@ export default function Sidebar({
 
   const desktopSidebarContent = (
     <div className="h-full flex flex-col">
-      <div className="p-4 pb-2 flex justify-between items-center">
+      <div className="p-6 pb-2 flex justify-between items-center mt-2">
         <Image
           src="/images/logo.png"
           alt="logo antika studio"
@@ -108,7 +116,7 @@ export default function Sidebar({
 
   const mobileSidebarContent = (
     <div className="h-full flex flex-col">
-      <div className="p-4 border-b flex justify-between items-center">
+      <div className="p-2 border-b flex justify-between items-center">
         <Image
           src="/images/logo.png"
           alt="logo antika studio"
@@ -122,7 +130,7 @@ export default function Sidebar({
           <X size={20} />
         </button>
       </div>
-      <ul className="flex-1 px-3 pt-8">
+      <ul className="flex-1 px-3 pt-4">
         {navItems.map((item) => (
           <Link
             href={item.href}
@@ -142,7 +150,7 @@ export default function Sidebar({
   return (
     <>
       <aside
-        className={`hidden md:block h-screen bg-white border-r shadow-sm transition-all ${
+        className={`hidden lg:block bg-white border-r shadow-sm transition-all ${
           expanded ? "w-64" : "w-20"
         }`}
       >
@@ -157,14 +165,14 @@ export default function Sidebar({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileOpen(false)}
-              className="fixed inset-0 bg-black/50 z-40 md:hidden"
+              className="fixed inset-0 bg-black/50 z-40 lg:hidden"
             />
             <motion.div
               variants={mobileSidebarVariants}
               initial="hidden"
               animate="visible"
               exit="hidden"
-              className="fixed top-0 left-0 h-full w-64 bg-white z-50 md:hidden"
+              className="fixed top-0 left-0 h-full w-64 bg-white z-50 lg:hidden"
             >
               {mobileSidebarContent}
             </motion.div>

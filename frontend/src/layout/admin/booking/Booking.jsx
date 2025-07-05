@@ -1,13 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import useSWR from "swr";
 import { toast } from "react-hot-toast";
 import {
   MdKeyboardDoubleArrowLeft,
   MdKeyboardDoubleArrowRight,
 } from "react-icons/md";
 import ModalBooking from "./ModalBooking";
+import DotLoader from "@/components/loading/dotloader";
+
+const fetcher = (url) => fetch(url).then((res) => res.json());
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -32,14 +35,21 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-export default function Booking({ initialBookings }) {
-  const [bookings, setBookings] = useState(initialBookings);
+export default function Booking() {
+  const {
+    data: bookings,
+    error,
+    mutate,
+  } = useSWR("/api/bookings/all", fetcher, {
+    revalidateOnFocus: true,
+  });
+
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const itemsPerPage = 20;
-  const totalPages = Math.ceil(bookings.length / itemsPerPage);
-  const router = useRouter();
+
+  const totalPages = bookings ? Math.ceil(bookings.length / itemsPerPage) : 0;
 
   const openModal = (booking) => {
     setSelectedBooking(booking);
@@ -63,13 +73,7 @@ export default function Booking({ initialBookings }) {
         throw new Error("Gagal mengubah status");
       }
 
-      const updatedBooking = await response.json();
-
-      setBookings((currentBookings) =>
-        currentBookings.map((b) =>
-          b.publicId === publicId ? updatedBooking : b
-        )
-      );
+      mutate(); // Trigger SWR to re-fetch data
 
       toast.success("Status berhasil diperbarui!", {
         className: "custom-toast",
@@ -79,6 +83,14 @@ export default function Booking({ initialBookings }) {
       toast.error("Gagal memperbarui status.", { className: "custom-toast" });
     }
   };
+
+  if (error) return <div>Gagal memuat data...</div>;
+  if (!bookings)
+    return (
+      <div className="flex justify-center items-center h-full">
+        <DotLoader text="Memuat data booking..." />
+      </div>
+    );
 
   const displayedBookings = bookings.slice(
     (currentPage - 1) * itemsPerPage,
@@ -91,10 +103,9 @@ export default function Booking({ initialBookings }) {
   };
 
   return (
-    <div className="md:p-8">
-      {/* Desktop Table */}
-      <div className="hidden md:block bg-white rounded-lg shadow-md overflow-hidden">
-        <h1 className="text-lg lg:text-xl font-semibold text-gray-600 p-6">
+    <div className="p-0 lg:p-8">
+      <div className="hidden lg:block bg-white rounded-lg shadow-md overflow-hidden">
+        <h1 className="text-lg font-semibold text-gray-600 p-6">
           Kelola Daftar Booking
         </h1>
         <div className="overflow-x-auto px-6 pb-2">
@@ -121,19 +132,23 @@ export default function Booking({ initialBookings }) {
                 </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-gray-200">
               {displayedBookings.map((booking) => (
                 <tr
                   key={booking.publicId}
                   onClick={() => openModal(booking)}
-                  className="bg-white border-b hover:bg-gray-50 hover:cursor-pointer"
+                  className="even:bg-gray-50 odd:bg-white hover:bg-sky-50 hover:cursor-pointer"
                 >
-                  <td className="px-6 py-4 font-medium text-gray-700">
+                  <td className="px-6 py-4 font-medium text-gray-700 whitespace-nowrap">
                     {booking.nama}
                   </td>
                   <td className="px-6 py-4">{booking.telepon}</td>
-                  <td className="px-6 py-4">{booking.paket}</td>
-                  <td className="px-6 py-4">{formatDate(booking.tanggal)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {booking.paket}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {formatDate(booking.tanggal)}
+                  </td>
                   <td className="px-6 py-4">
                     <StatusBadge status={booking.status} />
                   </td>
@@ -146,7 +161,7 @@ export default function Booking({ initialBookings }) {
                       onChange={(e) =>
                         handleStatusChange(booking.publicId, e.target.value)
                       }
-                      className="bg-gray-50 border border-gray-300 text-gray-800 text-sm rounded-full focus:ring-sky-500 focus:border-sky-500 block w-3/5 p-1"
+                      className="bg-gray-50 border border-gray-300 text-gray-800 text-sm rounded-full focus:ring-sky-500 focus:border-sky-500 block w-full p-2"
                     >
                       <option value="PENDING">Pending</option>
                       <option value="CONFIRMED">Confirmed</option>
@@ -168,9 +183,8 @@ export default function Booking({ initialBookings }) {
           >
             <MdKeyboardDoubleArrowLeft className="w-5 h-5" />
           </button>
-
           <span className="text-sm text-gray-600">
-            Page {currentPage} of {totalPages}
+            Halaman {currentPage} dari {totalPages}
           </span>
           <button
             onClick={() => goToPage(currentPage + 1)}
@@ -182,13 +196,15 @@ export default function Booking({ initialBookings }) {
         </div>
       </div>
 
-      {/* Mobile Cards */}
-      <div className="md:hidden space-y-4">
+      <div className="lg:hidden space-y-4 p-4">
+        <h1 className="text-md  font-semibold text-gray-600">
+          Kelola Daftar Booking
+        </h1>
         {displayedBookings.map((booking) => (
           <div
             key={booking.publicId}
             onClick={() => openModal(booking)}
-            className="bg-white rounded-2xl shadow-md p-4 hover:cursor-pointer"
+            className="bg-white rounded-2xl shadow-md p-4 hover:cursor-pointer hover:shadow-lg transition-shadow"
           >
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-3">
@@ -223,7 +239,7 @@ export default function Booking({ initialBookings }) {
                     onChange={(e) =>
                       handleStatusChange(booking.publicId, e.target.value)
                     }
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-full focus:ring-sky-500 focus:border-sky-500 block w-3/4 p-1"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-full focus:ring-sky-500 focus:border-sky-500 block w-full p-2"
                   >
                     <option value="PENDING">Pending</option>
                     <option value="CONFIRMED">Confirmed</option>
@@ -241,8 +257,8 @@ export default function Booking({ initialBookings }) {
           </div>
         ))}
 
-        {/* Mobile Pagination */}
-        <div className="flex justify-center items-center space-x-4">
+        {/* Mobile/Tablet Pagination */}
+        <div className="flex justify-center items-center space-x-4 pt-4 pb-2">
           <button
             onClick={() => goToPage(currentPage - 1)}
             disabled={currentPage === 1}
@@ -250,9 +266,8 @@ export default function Booking({ initialBookings }) {
           >
             <MdKeyboardDoubleArrowLeft className="w-5 h-5" />
           </button>
-
           <span className="text-sm text-gray-600">
-            Page {currentPage} of {totalPages}
+            Halaman {currentPage} dari {totalPages}
           </span>
           <button
             onClick={() => goToPage(currentPage + 1)}

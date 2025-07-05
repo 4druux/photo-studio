@@ -18,8 +18,10 @@
     "next": "15.3.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-dropzone": "^14.3.8",
     "react-hot-toast": "^2.5.2",
     "react-icons": "^5.5.0",
+    "react-image-crop": "^11.0.10",
     "swr": "^2.3.4",
     "three": "^0.178.0",
     "vanta": "^0.5.24"
