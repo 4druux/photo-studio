@@ -139,7 +139,6 @@ export default function KelolaGaleri() {
       </div>
     );
 
-  // Fallback jika data tidak ada atau formatnya salah
   if (!data || !data.images) {
       return (
           <div className="p-8 text-center text-gray-500">
