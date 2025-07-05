@@ -66,7 +66,7 @@ export default function ButtonAnimation({
         className="absolute inset-0 flex items-center justify-center transition-opacity duration-300"
         style={{ opacity: isHovered ? 0 : 1 }}
       >
-        <span className="text-gray-600 text-sm font-semibold">{label}</span>
+        <span className="text-sky-500 text-sm font-semibold">{label}</span>
       </div>
 
       <div

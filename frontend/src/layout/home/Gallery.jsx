@@ -55,7 +55,7 @@ export default function Gallery() {
   const visibleImages = allImages.slice(0, visibleCount);
 
   return (
-    <section id="gallery" className="pt-12 md:pt-24">
+    <section className="pt-12 md:pt-24">
       <div className="container mx-auto px-4">
         {/* Judul Section */}
 
@@ -101,7 +101,7 @@ export default function Gallery() {
         <AnimatePresence>
           {visibleCount < allImages.length && (
             <motion.div
-              className="text-center mt-12"
+              className="text-center mt-4 md:mt-8"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
@@ -109,7 +109,7 @@ export default function Gallery() {
             >
               <button
                 onClick={loadMoreImages}
-                className=" text-white bg-gradient-to-br from-sky-200 via-sky-500 to-blue-500 hover:bg-none hover:bg-sky-600 
+                className=" text-white bg-gradient-to-br from-sky-200 via-sky-500 to-blue-500 hover:bg-none hover:bg-sky-500 
                 font-semibold flex items-center justify-center mx-auto  shadow-sm hover:shadow-md py-3 px-8 rounded-full"
               >
                 Lihat Lebih Banyak

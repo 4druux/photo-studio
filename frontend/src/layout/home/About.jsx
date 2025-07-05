@@ -56,15 +56,28 @@ const itemVariants = {
 
 export default function About() {
   return (
-    <section className="relative w-full py-24 md:py-60 mt-16 overflow-hidden">
+    <section className="relative w-full py-24 md:py-64 mt-16 overflow-hidden">
       <div className="absolute inset-0 w-full h-full z-0">
-        <Image
-          src="/images/waves.png"
-          alt="Abstract wave background"
-          layout="fill"
-          objectFit="cover"
-          quality={100}
-        />
+        {/* Gambar untuk Desktop */}
+        <div className="hidden md:block">
+          <Image
+            src="/images/dekstopwaves.png"
+            alt="Abstract wave background for desktop"
+            layout="fill"
+            objectFit="cover"
+            quality={100}
+          />
+        </div>
+        {/* Gambar untuk Mobile */}
+        <div className="block md:hidden">
+          <Image
+            src="/images/mobilewaves.png"
+            alt="Abstract wave background for mobile"
+            layout="fill"
+            objectFit="cover"
+            quality={100}
+          />
+        </div>
       </div>
 
       <motion.div

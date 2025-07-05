@@ -1,0 +1,23 @@
+// File: prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql" 
+  url      = env("DATABASE_URL")
+}
+
+model Booking {
+  id        Int      @id @default(autoincrement())
+  nama      String
+  telepon   String
+  tanggal   DateTime
+  paket     String 
+  catatan   String? 
+  status    String   @default("WAITING") 
+  createdAt DateTime @default(now())
+
+  @@map("bookings")
+}

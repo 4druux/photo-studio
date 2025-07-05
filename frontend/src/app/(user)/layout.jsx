@@ -19,11 +19,13 @@ export default function MainLayout({ children }) {
     }
   }, [pathname, hasMounted]);
 
+  const showHeaderFooter = pathname !== "/formulir" && pathname !== "/booking";
+
   return (
     <div className="min-h-screen bg-gray-50 mb-18 md:mb-0">
-      <AppHeader />
-      <div key={pathname}>{children}</div>
-      <AppFooter />
+      {showHeaderFooter && <AppHeader />}
+      <main key={pathname}>{children}</main>
+      {showHeaderFooter && <AppFooter />}
     </div>
   );
 }

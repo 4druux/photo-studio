@@ -15,7 +15,7 @@ const page = () => {
         <About />
       </section>
 
-      <section>
+      <section id="gallery">
         <Gallery />
       </section>
 
