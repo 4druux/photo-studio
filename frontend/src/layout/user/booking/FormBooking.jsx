@@ -116,20 +116,15 @@ export default function FormBooking() {
 
     setIsLoading(true);
 
-    const toYYYYMMDD = (date) => {
-      const d = new Date(date);
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, "0");
-      const day = String(d.getDate()).padStart(2, "0");
-      return `${year}-${month}-${day}`;
-    };
+    const [hour, minute] = bookingDetails.time.split(":");
+    const bookingDateTime = new Date(bookingDetails.date);
+    bookingDateTime.setHours(hour, minute, 0, 0);
 
     const payload = {
       nama: formData.name,
       telepon: `${PHONE_PREFIX}${formData.phone}`,
       paket: selectedPackage.title,
-      date: toYYYYMMDD(bookingDetails.date),
-      time: bookingDetails.time,
+      tanggal: bookingDateTime.toISOString(),
       catatan: formData.description,
     };
 

@@ -8,16 +8,13 @@ export async function POST(request) {
   try {
     const data = await request.json();
 
-    const bookingDateTimeString = `${data.date.split("T")[0]}T${data.time}:00`;
-    const bookingDate = new Date(bookingDateTimeString);
-
     const newBooking = await prisma.booking.create({
       data: {
         publicId: nanoid(10),
         nama: data.nama,
         telepon: data.telepon,
         paket: data.paket,
-        tanggal: bookingDate,
+        tanggal: new Date(data.tanggal),
         catatan: data.catatan,
       },
     });
