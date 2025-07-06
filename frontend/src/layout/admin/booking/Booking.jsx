@@ -3,12 +3,14 @@
 import { useState } from "react";
 import useSWR from "swr";
 import { toast } from "react-hot-toast";
+import { motion } from "framer-motion";
 import {
   MdKeyboardDoubleArrowLeft,
   MdKeyboardDoubleArrowRight,
 } from "react-icons/md";
 import ModalBooking from "./ModalBooking";
 import DotLoader from "@/components/loading/dotloader";
+import { containerVariants, itemVariants } from "@/utils/animations";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -73,7 +75,7 @@ export default function Booking() {
         throw new Error("Gagal mengubah status");
       }
 
-      mutate(); // Trigger SWR to re-fetch data
+      mutate();
 
       toast.success("Status berhasil diperbarui!", {
         className: "custom-toast",
@@ -103,12 +105,20 @@ export default function Booking() {
   };
 
   return (
-    <div className="p-0 lg:p-8">
-      <div className="hidden lg:block bg-white rounded-lg shadow-md overflow-hidden">
+    <motion.div
+      className="p-0 lg:p-8"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      <motion.div
+        className="hidden lg:block bg-white rounded-lg shadow-md"
+        variants={itemVariants}
+      >
         <h1 className="text-lg font-semibold text-gray-600 p-6">
           Kelola Daftar Booking
         </h1>
-        <div className="overflow-x-auto px-6 pb-2">
+        <div className="overflow-x-auto">
           <table className="w-full text-sm text-left text-gray-500">
             <thead className="bg-gray-50">
               <tr>
@@ -134,10 +144,13 @@ export default function Booking() {
             </thead>
             <tbody className="divide-y divide-gray-200">
               {displayedBookings.map((booking) => (
-                <tr
+                <motion.tr
                   key={booking.publicId}
                   onClick={() => openModal(booking)}
                   className="even:bg-gray-50 odd:bg-white hover:bg-sky-50 hover:cursor-pointer"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5 }}
                 >
                   <td className="px-6 py-4 font-medium text-gray-700 whitespace-nowrap">
                     {booking.nama}
@@ -168,13 +181,12 @@ export default function Booking() {
                       <option value="CANCELLED">Cancelled</option>
                     </select>
                   </td>
-                </tr>
+                </motion.tr>
               ))}
             </tbody>
           </table>
         </div>
 
-        {/* Pagination Controls */}
         <div className="flex justify-end items-center space-x-4 pr-6 py-4">
           <button
             onClick={() => goToPage(currentPage - 1)}
@@ -194,17 +206,23 @@ export default function Booking() {
             <MdKeyboardDoubleArrowRight className="w-5 h-5" />
           </button>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="lg:hidden space-y-4 p-4">
+      <motion.div
+        className="lg:hidden space-y-4 p-4"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
         <h1 className="text-base font-semibold text-gray-600">
           Kelola Daftar Booking
         </h1>
         {displayedBookings.map((booking) => (
-          <div
+          <motion.div
             key={booking.publicId}
             onClick={() => openModal(booking)}
             className="bg-white rounded-2xl shadow-md p-4 hover:cursor-pointer hover:shadow-lg transition-shadow"
+            variants={itemVariants}
           >
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-3">
@@ -254,10 +272,9 @@ export default function Booking() {
                 {formatDate(booking.tanggal)}
               </p>
             </div>
-          </div>
+          </motion.div>
         ))}
 
-        {/* Mobile/Tablet Pagination */}
         <div className="flex justify-center items-center space-x-4 pt-4 pb-2">
           <button
             onClick={() => goToPage(currentPage - 1)}
@@ -277,9 +294,8 @@ export default function Booking() {
             <MdKeyboardDoubleArrowRight className="w-5 h-5" />
           </button>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Modal Component */}
       {selectedBooking && (
         <ModalBooking
           booking={selectedBooking}
@@ -287,6 +303,6 @@ export default function Booking() {
           onClose={closeModal}
         />
       )}
-    </div>
+    </motion.div>
   );
 }

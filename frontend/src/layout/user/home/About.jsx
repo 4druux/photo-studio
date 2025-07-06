@@ -3,56 +3,34 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { FaPalette, FaTags, FaLock, FaBoxOpen } from "react-icons/fa";
+import { containerVariants, itemVariants } from "@/utils/animations";
 
-// Data fitur yang sudah di-improve dengan ikon
 const features = [
   {
     icon: FaPalette,
     title: "Kontrol Kreatif Penuh",
     description:
-      "Anda memiliki kendali atas semua aspek, mulai dari pencahayaan, latar, hingga sudut pengambilan gambar.",
+      "Mau pencahayaan dramatis atau latar cerah? Semuanya bebas kamu atur sesuai selera. Kami siap bantu wujudkan idemu.",
   },
   {
     icon: FaTags,
-    title: "Harga Kompetitif",
+    title: "Harga Ramah di Kantong",
     description:
-      "Nikmati kualitas foto profesional tanpa perlu membayar biaya yang mahal. Solusi terbaik untuk budget Anda.",
+      "Kualitas foto tetap profesional, tapi harganya bersahabat. Cocok buat personal, keluarga, atau bisnis kecil.",
   },
   {
     icon: FaLock,
-    title: "Sesi Foto Privat",
+    title: "Privasi Terjamin",
     description:
-      "Kami menyediakan lingkungan yang tenang dan intim untuk sesi foto personal Anda, bebas dari gangguan.",
+      "Sesi foto serasa punya studio sendiri. Tenang, nyaman, dan bebas gangguan. Fokus sepenuhnya ke momenmu.",
   },
   {
     icon: FaBoxOpen,
-    title: "Properti & Latar Lengkap",
+    title: "Properti Lengkap, Hasil Lebih Variatif",
     description:
-      "Pilih dari berbagai latar belakang dan properti unik untuk menciptakan foto dengan tampilan yang berbeda-beda.",
+      "Dari yang minimalis sampai yang playful—kami punya beragam properti dan latar buat hasil foto yang beda dan unik.",
   },
 ];
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.2,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      ease: "easeOut",
-    },
-  },
-};
 
 export default function About() {
   return (

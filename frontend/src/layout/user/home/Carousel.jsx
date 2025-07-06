@@ -6,6 +6,10 @@ import * as THREE from "three";
 import FOG from "vanta/dist/vanta.fog.min";
 import { motion } from "framer-motion";
 import ButtonAnimation from "@/components/button/ButtonAnimation";
+import {
+  carouselTextVariants,
+  carouselImageVariants,
+} from "@/utils/animations";
 
 export default function Carousel() {
   const ref = useRef(null);
@@ -43,15 +47,15 @@ export default function Carousel() {
       <div ref={ref} className="absolute inset-0 w-full h-full z-0" />
 
       <div className="relative z-10 container mx-auto h-full flex">
-        <div className="flex space-x-12 items-center justify-between">
+        <div className="flex flex-col-reverse md:flex-row gap-4 md:gap-12 items-center justify-center md:justify-between">
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="text-center md:text-left"
+            variants={carouselTextVariants}
+            initial="hidden"
+            animate="visible"
+            className="text-center md:text-left space-y-2 md:space-y-4"
           >
             <h1
-              className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-4"
+              className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight"
               style={{ textShadow: "2px 2px 4px rgba(0,0,0,0.2)" }}
             >
               Abadikan Momen{" "}
@@ -60,11 +64,11 @@ export default function Carousel() {
               </span>
             </h1>
             <p
-              className="text-lg md:text-xl text-gray-50 mb-4"
+              className="text-lg md:text-xl text-gray-50"
               style={{ textShadow: "2px 2px 4px rgba(0,0,0,0.4)" }}
             >
-              Studio foto profesional dengan konsep modern untuk setiap momen
-              spesial dalam hidup Anda.
+              Dengan tim profesional dan suasana yang nyaman, kami bantu
+              abadikan momen terbaik kamu, tanpa ribet.
             </p>
 
             <ButtonAnimation
@@ -76,14 +80,14 @@ export default function Carousel() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-            className="hidden md:flex justify-center"
+            variants={carouselImageVariants}
+            initial="hidden"
+            animate="visible"
+            className="flex justify-center"
           >
             <div className="relative w-[350px] h-[350px] lg:w-[450px] lg:h-[450px]">
               <Image
-                src="/path/to/your/photo.png"
+                src="/images/carousel.jpg"
                 alt="Contoh Hasil Foto Studio"
                 fill
                 style={{ objectFit: "cover" }}

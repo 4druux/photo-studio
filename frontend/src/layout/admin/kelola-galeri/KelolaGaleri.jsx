@@ -5,29 +5,24 @@ import useSWR, { useSWRConfig } from "swr";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trash2, AlertTriangle, ChevronLeft, ChevronRight } from "lucide-react";
-import { toast } from "react-hot-toast";
 import SweetAlert from "@/components/SweetAlert";
 import DotLoader from "@/components/loading/dotloader";
 import GalleryModal from "@/components/GalleryModal";
+import { containerVariants, itemVariants } from "@/utils/animations";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.05 } },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, scale: 0.9 },
-  visible: { opacity: 1, scale: 1 },
-};
-
 const getGridSpan = (aspectRatio) => {
-  if (typeof aspectRatio !== "number" || !aspectRatio)
-    return "col-span-1 md:col-span-1 md:row-span-1";
-  if (aspectRatio > 1.4) return "col-span-2 md:col-span-2 md:row-span-1";
-  if (aspectRatio < 0.9) return "col-span-1 md:col-span-1 md:row-span-2";
-  return "col-span-1 md:col-span-1 md:row-span-1";
+  if (typeof aspectRatio !== "number" || !aspectRatio) {
+    return "col-span-1 row-span-1";
+  }
+  if (aspectRatio > 1.5) {
+    return "col-span-2 row-span-1";
+  }
+  if (aspectRatio < 0.8) {
+    return "col-span-1 row-span-2";
+  }
+  return "col-span-1 row-span-1";
 };
 
 export default function KelolaGaleri() {
@@ -68,7 +63,9 @@ export default function KelolaGaleri() {
     c.addEventListener("scroll", checkScroll);
     window.addEventListener("resize", checkScroll);
     return () => {
-      c.removeEventListener("scroll", checkScroll);
+      if (c) {
+        c.removeEventListener("scroll", checkScroll);
+      }
       window.removeEventListener("resize", checkScroll);
     };
   }, [data]);
@@ -100,7 +97,7 @@ export default function KelolaGaleri() {
       title: "Konfirmasi Hapus",
       message: `Yakin ingin menghapus <b>${filename}</b>?`,
       icon: "warning",
-      showCancel: true, 
+      showCancel: true,
     });
     if (!confirmed) return;
 
@@ -114,10 +111,8 @@ export default function KelolaGaleri() {
         title: "Berhasil!",
         message: `Gambar <b>${filename}</b> berhasil dihapus.`,
         icon: "success",
-        showCancel: false, 
+        showCancel: false,
       });
-
-  
     } catch (err) {
       await SweetAlert({
         title: "Error",
@@ -160,13 +155,20 @@ export default function KelolaGaleri() {
         dragConstraints: { left: 0, right: 0 },
         dragElastic: 0.2,
         onDrag: (_, info) => {
-          scrollContainerRef.current.scrollLeft -= info.delta.x;
+          if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollLeft -= info.delta.x;
+          }
         },
       }
     : {};
 
   return (
-    <div className="p-0 lg:p-8">
+    <motion.div
+      className="p-0 lg:p-8"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
       <style jsx global>{`
         .no-scrollbar::-webkit-scrollbar {
           display: none;
@@ -178,7 +180,10 @@ export default function KelolaGaleri() {
           touch-action: pan-x;
         }
       `}</style>
-      <div className="bg-white p-4 sm:p-6 lg:p-8 rounded-2xl shadow-md">
+      <motion.div
+        className="bg-white p-4 sm:p-6 lg:p-8 rounded-2xl shadow-md"
+        variants={itemVariants}
+      >
         <h1 className="text-base lg:text-lg font-semibold text-gray-600 mb-4">
           Kelola Galeri{" "}
           <span className="text-sm lg:text-base">
@@ -236,7 +241,7 @@ export default function KelolaGaleri() {
           <>
             <motion.div
               key={selectedCategory}
-              className="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[150px] md:auto-rows-[200px]"
+              className="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[150px] md:auto-rows-[200px] grid-flow-dense"
               variants={containerVariants}
               initial="hidden"
               animate="visible"
@@ -278,7 +283,6 @@ export default function KelolaGaleri() {
               ))}
             </motion.div>
 
-            {/* Load More button */}
             {visibleCount < filteredImages.length && (
               <div className="text-center mt-8">
                 <button
@@ -291,7 +295,7 @@ export default function KelolaGaleri() {
             )}
           </>
         )}
-      </div>
+      </motion.div>
 
       <AnimatePresence>
         {modalOpen && (
@@ -302,6 +306,6 @@ export default function KelolaGaleri() {
           />
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }

@@ -111,7 +111,7 @@ const AppFooter = () => {
           </p>
           <ul className="flex flex-col gap-2 text-gray-600">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3964.8774850927057!2d106.70882037499196!3d-6.409779093581011!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNsKwMjQnMzUuMiJTIDEwNsKwNDInNDEuMCJF!5e0!3m2!1sid!2sid!4v1751782104655!5m2!1sid!2sid"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3964.8772502673905!2d106.71141039999999!3d-6.409809300000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69e7645e98d333%3A0x10487d6f34c95eb6!2sAntika%20Studio!5e0!3m2!1sid!2sid!4v1751797450076!5m2!1sid!2sid"
               width="300"
               height="200"
               style={{ border: 0 }}

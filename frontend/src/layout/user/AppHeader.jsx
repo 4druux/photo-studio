@@ -10,7 +10,6 @@ function AppHeader() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
 
-  // Navigasi data untuk one-page scroll
   const navLinks = [
     { href: "#home", label: "Home" },
     { href: "#about", label: "About" },
@@ -18,7 +17,6 @@ function AppHeader() {
     { href: "#schedule", label: "Schedule" },
   ];
 
-  // Efek untuk deteksi scroll header
   useEffect(() => {
     const handleScroll = () => setIsTop(window.scrollY <= 50);
     window.addEventListener("scroll", handleScroll);
@@ -26,7 +24,6 @@ function AppHeader() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Efek untuk mengunci scroll body saat menu mobile terbuka
   useEffect(() => {
     document.body.style.overflow = isMobileMenuOpen ? "hidden" : "unset";
     return () => {
@@ -34,7 +31,6 @@ function AppHeader() {
     };
   }, [isMobileMenuOpen]);
 
-  // Efek untuk mendeteksi section aktif saat scroll
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -44,7 +40,7 @@ function AppHeader() {
           }
         });
       },
-      { rootMargin: "-30% 0px -70% 0px" } // Memicu saat section berada di 30% atas layar
+      { rootMargin: "-30% 0px -70% 0px" } 
     );
 
     navLinks.forEach((link) => {
@@ -57,7 +53,6 @@ function AppHeader() {
     return () => observer.disconnect();
   }, [navLinks]);
 
-  // Fungsi untuk smooth scroll
   const handleScrollLink = (e, href) => {
     e.preventDefault();
     const element = document.querySelector(href);
@@ -69,7 +64,6 @@ function AppHeader() {
 
   const closeMenu = () => setIsMobileMenuOpen(false);
 
-  // Class untuk styling link
   const navLinkClass = (path) =>
     `relative text-md font-semibold text-gray-500 transition-colors duration-300 group`;
 
@@ -83,7 +77,6 @@ function AppHeader() {
       `#${activeSection}` === path ? "bg-sky-100 text-sky-600" : "text-gray-500"
     }`;
 
-  // Varian animasi (tidak berubah)
   const overlayVariants = { visible: { opacity: 1 }, hidden: { opacity: 0 } };
   const menuPanelVariants = {
     hidden: { x: "100%" },

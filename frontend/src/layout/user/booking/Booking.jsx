@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import toast, { Toaster } from "react-hot-toast";
 import {
   CheckCircle,
   Calendar,
@@ -13,6 +15,7 @@ import { schedulePackages } from "@/data/packages";
 import ButtonAnimation from "@/components/button/ButtonAnimation";
 import ButtonTextFlip from "@/components/button/ButtonTextFlip";
 import DotLoader from "@/components/loading/dotloader";
+import { containerVariants, itemVariants } from "@/utils/animations";
 
 const ErrorMessage = ({ message, onRetry }) => (
   <div className="text-center">
@@ -77,6 +80,13 @@ export default function Booking() {
       minute: "2-digit",
     });
 
+  const handleCopy = (textToCopy, message) => {
+    navigator.clipboard.writeText(textToCopy);
+    toast.success(message, {
+      className: "custom-toast",
+    });
+  };
+
   if (loading)
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
@@ -101,19 +111,28 @@ export default function Booking() {
       booking.paket
     }\n\nTerima kasih.`
   );
-  const whatsappLink = `https://wa.me/6285810249867?text=${whatsappMessage}`;
+  const whatsappLink = `https://api.whatsapp.com/send/?phone=%2B62895332188227&text=${whatsappMessage}`;
 
   return (
     <div className="min-h-screen p-0 md:p-12">
-      <div className="max-w-2xl mx-auto bg-white p-4 md:p-6 rounded-2xl shadow-md">
-        <div className="text-center mb-6">
+      <Toaster position="top-center" />
+      <motion.div
+        className="max-w-2xl mx-auto bg-white p-4 md:p-6 rounded-2xl shadow-md"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.div className="text-center mb-6" variants={itemVariants}>
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
           <h2 className="text-lg lg:text-xl font-semibold text-gray-700">
             Booking Diterima!
           </h2>
-        </div>
+        </motion.div>
 
-        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
+        <motion.div
+          className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6"
+          variants={itemVariants}
+        >
           <div className="flex justify-between items-center text-sm mb-2">
             <span className="text-gray-500">Nama Pemesan</span>
             <span className="font-semibold text-gray-700">{booking.nama}</span>
@@ -136,9 +155,9 @@ export default function Booking() {
               {formatDate(booking.createdAt)}
             </span>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="space-y-4">
+        <motion.div className="space-y-4" variants={itemVariants}>
           <h2 className="text-lg font-medium text-gray-700 border-b pb-2">
             Detail Sesi Foto
           </h2>
@@ -180,11 +199,17 @@ export default function Booking() {
               )}
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="border-t border-gray-200 my-6" />
+        <motion.div
+          className="border-t border-gray-200 my-6"
+          variants={itemVariants}
+        />
 
-        <div className="bg-sky-50 border-l-4 border-sky-400 p-4 rounded-lg">
+        <motion.div
+          className="bg-sky-50 border-l-4 border-sky-400 p-4 rounded-lg"
+          variants={itemVariants}
+        >
           <div className="flex">
             <div className="py-1">
               <AlertTriangle className="h-5 w-5 text-sky-500 mr-3" />
@@ -199,7 +224,12 @@ export default function Booking() {
                   Bank BCA{" "}
                   <span
                     className="font-semibold cursor-pointer underline"
-                    onClick={() => navigator.clipboard.writeText("70055778689")}
+                    onClick={() =>
+                      handleCopy(
+                        "70055778689",
+                        "Nomor rekening berhasil disalin!"
+                      )
+                    }
                     title="Klik untuk salin nomor rekening"
                   >
                     70055778689
@@ -216,9 +246,12 @@ export default function Booking() {
               </p>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="mt-8 flex justify-end space-x-4 items-center">
+        <motion.div
+          className="mt-8 flex justify-end space-x-4 items-center"
+          variants={itemVariants}
+        >
           <ButtonAnimation
             label="Kembali"
             hoverLabel="Kembali"
@@ -232,8 +265,8 @@ export default function Booking() {
             target="_blank"
             rel="noopener noreferrer"
           />
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }

@@ -13,46 +13,44 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 
-// NavLink component remains the same
-
-const NavLink = ({ item, expanded }) => {
+const NavLink = ({ item, expanded, onClick }) => {
   const pathname = usePathname();
   const isActive = pathname === item.href;
 
   return (
-    <Link href={item.href}>
-      <li
-        className={`
-          relative flex items-center p-3 my-1 text-sm font-medium rounded-md cursor-pointer
-          transition-colors group
-          ${
-            isActive
-              ? "bg-gradient-to-tr from-sky-200 to-sky-100 text-sky-600"
-              : "hover:bg-sky-50 text-gray-600"
-          }
-        `}
+    <Link
+      href={item.href}
+      onClick={onClick}
+      className={`
+        relative flex items-center text-sm font-medium rounded-md cursor-pointer
+        transition-colors group w-full
+        ${
+          isActive
+            ? "bg-gradient-to-tr from-sky-200 to-sky-100 text-sky-600"
+            : "text-gray-600 hover:bg-sky-50"
+        }
+        ${expanded ? "p-3" : "p-3"}`}
+    >
+      {item.icon}
+      <span
+        className={`overflow-hidden transition-all ${
+          expanded ? "w-52 ml-3" : "w-0"
+        }`}
       >
-        {item.icon}
-        <span
-          className={`overflow-hidden transition-all ${
-            expanded ? "w-52 ml-3" : "w-0"
-          }`}
+        {item.label}
+      </span>
+      {!expanded && (
+        <div
+          className={`
+          absolute left-full rounded-md px-2 py-1 ml-6
+          bg-sky-100 text-sky-600 text-xs
+          invisible opacity-20 -translate-x-3 transition-all
+          group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
+        `}
         >
           {item.label}
-        </span>
-        {!expanded && (
-          <div
-            className={`
-            absolute left-full rounded-md px-2 py-1 ml-6
-            bg-sky-100 text-sky-600 text-xs
-            invisible opacity-20 -translate-x-3 transition-all
-            group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
-          `}
-          >
-            {item.label}
-          </div>
-        )}
-      </li>
+        </div>
+      )}
     </Link>
   );
 };
@@ -81,14 +79,35 @@ export default function Sidebar({
     },
   ];
 
-  const mobileSidebarVariants = {
+  const overlayVariants = {
+    visible: { opacity: 1 },
+    hidden: { opacity: 0 },
+  };
+
+  const menuPanelVariants = {
     hidden: { x: "-100%" },
-    visible: { x: 0, transition: { duration: 0.3, ease: "easeInOut" } },
+    visible: {
+      x: 0,
+      transition: { duration: 0.3, ease: "easeInOut" },
+    },
+    exit: { x: "-100%", transition: { duration: 0.2, ease: "easeInOut" } },
+  };
+
+  const mobileNavContainerVariants = {
+    hidden: {},
+    visible: {
+      transition: { staggerChildren: 0.05, delayChildren: 0.1 },
+    },
+  };
+
+  const mobileNavItemVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: { opacity: 1, x: 0 },
   };
 
   const desktopSidebarContent = (
-    <div className="h-full flex flex-col">
-      <div className="p-6 pb-2 flex justify-between items-center mt-2">
+    <div className={`h-full flex flex-col`}>
+      <div className="p-4 pb-2 flex justify-between items-center mt-2">
         <Image
           src="/images/logo.png"
           alt="logo antika studio"
@@ -100,48 +119,15 @@ export default function Sidebar({
         />
         <button
           onClick={() => setExpanded((curr) => !curr)}
-          className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100"
+          className="p-2 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-500 hover:text-gray-700"
         >
           {expanded ? <ChevronFirst /> : <ChevronLast />}
         </button>
       </div>
 
-      <ul className="flex-1 px-3 pt-8">
+      <ul className="flex-1 px-3 pt-8 space-y-2">
         {navItems.map((item) => (
           <NavLink key={item.href} item={item} expanded={expanded} />
-        ))}
-      </ul>
-    </div>
-  );
-
-  const mobileSidebarContent = (
-    <div className="h-full flex flex-col">
-      <div className="p-2 border-b flex justify-between items-center">
-        <Image
-          src="/images/logo.png"
-          alt="logo antika studio"
-          width={120}
-          height={24}
-        />
-        <button
-          onClick={() => setMobileOpen(false)}
-          className="p-1.5 rounded-lg hover:bg-gray-100"
-        >
-          <X size={20} />
-        </button>
-      </div>
-      <ul className="flex-1 px-3 pt-4">
-        {navItems.map((item) => (
-          <Link
-            href={item.href}
-            key={item.href}
-            onClick={() => setMobileOpen(false)}
-          >
-            <li className="relative flex items-center py-2.5 px-3 my-1 font-medium rounded-md cursor-pointer transition-colors hover:bg-sky-50 text-gray-600">
-              {item.icon}
-              <span className="ml-3">{item.label}</span>
-            </li>
-          </Link>
         ))}
       </ul>
     </div>
@@ -161,20 +147,50 @@ export default function Sidebar({
         {mobileOpen && (
           <>
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              key="overlay"
+              variants={overlayVariants}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
               onClick={() => setMobileOpen(false)}
               className="fixed inset-0 bg-black/50 z-40 lg:hidden"
             />
             <motion.div
-              variants={mobileSidebarVariants}
+              key="menu-panel"
+              variants={menuPanelVariants}
               initial="hidden"
               animate="visible"
-              exit="hidden"
-              className="fixed top-0 left-0 h-full w-64 bg-white z-50 lg:hidden"
+              exit="exit"
+              className="fixed top-0 left-0 h-full w-64 bg-white z-50 lg:hidden rounded-r-2xl shadow-xl flex flex-col"
             >
-              {mobileSidebarContent}
+              <div className="p-4 border-b flex justify-between items-center">
+                <Image
+                  src="/images/logo.png"
+                  alt="logo antika studio"
+                  width={120}
+                  height={24}
+                />
+                <button
+                  onClick={() => setMobileOpen(false)}
+                  className="p-1.5 rounded-lg hover:bg-gray-100"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <motion.ul
+                className="flex-1 px-3 pt-4 space-y-2"
+                variants={mobileNavContainerVariants}
+              >
+                {navItems.map((item) => (
+                  <motion.li key={item.href} variants={mobileNavItemVariants}>
+                    <NavLink
+                      item={item}
+                      expanded={true}
+                      onClick={() => setMobileOpen(false)}
+                    />
+                  </motion.li>
+                ))}
+              </motion.ul>
             </motion.div>
           </>
         )}

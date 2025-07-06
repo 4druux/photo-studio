@@ -9,37 +9,21 @@ import Description from "@/components/text/Description";
 import DotLoader from "@/components/loading/dotloader";
 import GalleryModal from "@/components/GalleryModal";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { containerVariants, itemVariants } from "@/utils/animations";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.05, delayChildren: 0.1 },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, scale: 0.9 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: { type: "spring", stiffness: 150, damping: 20 },
-  },
-};
-
 const getGridSpan = (aspectRatio) => {
   if (typeof aspectRatio !== "number" || !aspectRatio) {
-    return "col-span-1 md:col-span-1 md:row-span-1";
+    return "col-span-1 row-span-1";
   }
-  if (aspectRatio > 1.4) {
-    return "col-span-2 md:col-span-2 md:row-span-1";
+  if (aspectRatio > 1.5) {
+    return "col-span-2 row-span-1";
   }
-  if (aspectRatio < 0.7 || aspectRatio < 0.9) {
-    return "col-span-1 md:col-span-1 md:row-span-2";
+  if (aspectRatio < 0.8) {
+    return "col-span-1 row-span-2";
   }
-  return "col-span-1 md:col-span-1 md:row-span-1";
+  return "col-span-1 row-span-1";
 };
 
 export default function Gallery() {
@@ -82,7 +66,9 @@ export default function Gallery() {
       c.addEventListener("scroll", checkScroll);
       window.addEventListener("resize", checkScroll);
       return () => {
-        c.removeEventListener("scroll", checkScroll);
+        if (c) {
+          c.removeEventListener("scroll", checkScroll);
+        }
         window.removeEventListener("resize", checkScroll);
       };
     }
@@ -97,7 +83,7 @@ export default function Gallery() {
 
   const handleCategoryClick = (category, idx) => {
     setSelectedCategory(category);
-    setVisibleCount(10); // reset count when category changes
+    setVisibleCount(10);
     const c = scrollContainerRef.current;
     const b = btnRefs.current[idx];
     if (c && b) {
@@ -139,7 +125,9 @@ export default function Gallery() {
         dragConstraints: { left: 0, right: 0 },
         dragElastic: 0.2,
         onDrag: (_, info) => {
-          scrollContainerRef.current.scrollLeft -= info.delta.x;
+          if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollLeft -= info.delta.x;
+          }
         },
       }
     : {};
@@ -158,15 +146,24 @@ export default function Gallery() {
         }
       `}</style>
       <div className="container mx-auto px-4">
-        <div className="text-center mb-4">
-          <Tittle text="Galeri Momen" />
-          <Description
-            text="Setiap gambar memiliki cerita. Inilah beberapa di antaranya, disajikan dalam komposisi yang indah."
-            className="mt-2 max-w-2xl mx-auto"
-          />
-        </div>
+        <motion.div
+          className="text-center mb-4"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+        >
+          <motion.div variants={itemVariants}>
+            <Tittle text="Galeri Momen" />
+          </motion.div>
+          <motion.div variants={itemVariants}>
+            <Description
+              text="Setiap gambar memiliki cerita. Inilah beberapa di antaranya, disajikan dalam komposisi yang indah."
+              className="mt-2 max-w-2xl mx-auto"
+            />
+          </motion.div>
+        </motion.div>
 
-        {/* Category scroller */}
         <div className="relative w-full max-w-4xl mx-auto mb-8">
           {canScrollLeft && (
             <motion.button
@@ -208,13 +205,13 @@ export default function Gallery() {
           )}
         </div>
 
-        {/* Gallery grid */}
         <motion.div
           key={selectedCategory}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[250px]"
+          className="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[250px] grid-flow-dense"
           variants={containerVariants}
           initial="hidden"
-          animate="visible"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.1 }}
         >
           {filteredImages.slice(0, visibleCount).map((image, index) => (
             <motion.div
@@ -238,7 +235,6 @@ export default function Gallery() {
           ))}
         </motion.div>
 
-        {/* Load More button */}
         {visibleCount < filteredImages.length && (
           <div className="text-center mt-8">
             <button

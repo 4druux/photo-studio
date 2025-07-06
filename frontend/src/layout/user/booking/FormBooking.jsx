@@ -3,10 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { schedulePackages } from "@/data/packages";
 import BookingCalendar from "@/components/BookingCalendar";
 import PackageNotFound from "@/layout/user/booking/PackageNotFound";
+import { containerVariants, itemVariants } from "@/utils/animations";
 
 const PHONE_PREFIX = "+62";
 
@@ -147,17 +149,29 @@ export default function FormBooking() {
 
   return (
     <div className="min-h-screen p-0 md:p-12">
-      <div className="max-w-2xl mx-auto bg-white p-4 md:p-6 rounded-2xl shadow-md">
-        <div className="flex items-center text-gray-700 mb-2">
-          <Link href="/#schedule">
-            <ArrowLeft className="inline-block mr-1 cursor-pointer hover:scale-105 transition-transform duration-300" />
-          </Link>
-          <h2 className="text-lg lg:text-xl font-semibold">Formulir Booking</h2>
-        </div>
-        <p className="text-sm lg:text-base text-gray-500 mb-4">
-          Lengkapi data diri, deskripsi opsional, dan pilih jadwal Anda.
-        </p>
-        <div className="bg-sky-50 border border-sky-200 p-4 rounded-xl mb-4 space-y-3">
+      <motion.div
+        className="max-w-2xl mx-auto bg-white p-4 md:p-6 rounded-2xl shadow-md"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.div variants={itemVariants}>
+          <div className="flex items-center text-gray-700 mb-2">
+            <Link href="/#schedule">
+              <ArrowLeft className="inline-block mr-1 cursor-pointer hover:scale-105 transition-transform duration-300" />
+            </Link>
+            <h2 className="text-lg lg:text-xl font-semibold">
+              Formulir Booking
+            </h2>
+          </div>
+          <p className="text-sm lg:text-base text-gray-500 mb-4">
+            Lengkapi data diri, deskripsi opsional, dan pilih jadwal Anda.
+          </p>
+        </motion.div>
+        <motion.div
+          className="bg-sky-50 border border-sky-200 p-4 rounded-xl mb-4 space-y-3"
+          variants={itemVariants}
+        >
           <h3 className="text-xl font-semibold text-sky-800">{title}</h3>
           <p className="text-2xl font-bold text-sky-600">{price}</p>
           <ul className="text-sky-700 text-sm space-y-2 pt-2">
@@ -168,12 +182,12 @@ export default function FormBooking() {
               </li>
             ))}
           </ul>
-        </div>
+        </motion.div>
         <div
           className="space-y-6"
           onKeyDown={(e) => e.key === "Enter" && e.preventDefault()}
         >
-          <div>
+          <motion.div variants={itemVariants}>
             <label
               htmlFor="name"
               className="block text-sm font-medium text-gray-700 mb-1"
@@ -192,8 +206,8 @@ export default function FormBooking() {
             {errors.name && (
               <p className="text-red-500 text-xs mt-1">{errors.name}</p>
             )}
-          </div>
-          <div>
+          </motion.div>
+          <motion.div variants={itemVariants}>
             <label
               htmlFor="phone"
               className="block text-sm font-medium text-gray-700 mb-1"
@@ -225,8 +239,8 @@ export default function FormBooking() {
             {errors.phoneFormat && (
               <p className="text-red-500 text-xs mt-1">{errors.phoneFormat}</p>
             )}
-          </div>
-          <div>
+          </motion.div>
+          <motion.div variants={itemVariants}>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Tanggal & Waktu Pilihan
             </label>
@@ -234,8 +248,8 @@ export default function FormBooking() {
             {errors.date && (
               <p className="text-red-500 text-xs mt-1">{errors.date}</p>
             )}
-          </div>
-          <div>
+          </motion.div>
+          <motion.div variants={itemVariants}>
             <label
               htmlFor="description"
               className="block text-sm font-medium text-gray-700 mb-1"
@@ -250,8 +264,8 @@ export default function FormBooking() {
               className="block w-full border border-gray-300 shadow-sm py-2 px-3 rounded-lg min-h-[100px] focus:outline-none `focus:ring-sky-500 focus:border-sky-500 placeholder:text-gray-400 placeholder:text-sm`"
               placeholder="Detail tambahan tentang sesi foto Anda..."
             />
-          </div>
-          <button
+          </motion.div>
+          <motion.button
             type="button"
             onClick={handleSubmit}
             disabled={isLoading}
@@ -260,17 +274,18 @@ export default function FormBooking() {
                 ? "bg-sky-400 cursor-not-allowed"
                 : "bg-gradient-to-br from-sky-200 via-sky-500 to-blue-500 hover:bg-none hover:bg-sky-500 hover:shadow-md"
             }`}
+            variants={itemVariants}
           >
             {isLoading && <Loader2 className="animate-spin h-5 w-5 mr-3" />}
             {isLoading ? "Mengirim..." : "Booking Sekarang"}
-          </button>
+          </motion.button>
           {errors.submit && (
             <p className="text-red-500 text-xs mtu-1 text-center">
               {errors.submit}
             </p>
           )}
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

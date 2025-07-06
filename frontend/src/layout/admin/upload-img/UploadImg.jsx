@@ -17,6 +17,8 @@ import {
   Trash2,
   ListCheck,
 } from "lucide-react";
+import { motion } from "framer-motion";
+import { containerVariants, itemVariants } from "@/utils/animations";
 
 const photoCategories = [
   "Couple",
@@ -50,14 +52,29 @@ function centerAspectCrop(mediaWidth, mediaHeight, aspect) {
 }
 
 const CroppedGallery = ({ croppedImages, onEdit, onUpload, isUploading }) => (
-  <div className="w-full max-w-4xl mx-auto p-4 lg:p-0">
-    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+  <motion.div
+    className="w-full max-w-4xl mx-auto p-4 lg:p-0"
+    variants={containerVariants}
+    initial="hidden"
+    animate="visible"
+  >
+    <motion.div
+      className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200"
+      variants={itemVariants}
+    >
       <h1 className="text-base lg:text-lg font-semibold text-gray-600 mb-4">
         Selesai di-crop ({croppedImages.length} gambar)
       </h1>
-      <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-4 mb-6">
+      <motion.div
+        className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-4 mb-6"
+        variants={containerVariants}
+      >
         {croppedImages.map((img) => (
-          <div key={img.id} className="relative group aspect-square">
+          <motion.div
+            key={img.id}
+            className="relative group aspect-square"
+            variants={itemVariants}
+          >
             <img
               src={img.src}
               alt="Cropped"
@@ -68,9 +85,9 @@ const CroppedGallery = ({ croppedImages, onEdit, onUpload, isUploading }) => (
                 {img.categories.join(", ") || "No Category"}
               </p>
             </div>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
       <div className="flex justify-end items-center mt-8 lg:mt-12 gap-4">
         <button
           onClick={onEdit}
@@ -87,8 +104,8 @@ const CroppedGallery = ({ croppedImages, onEdit, onUpload, isUploading }) => (
           {isUploading ? "Mengunggah..." : "Upload"}
         </button>
       </div>
-    </div>
-  </div>
+    </motion.div>
+  </motion.div>
 );
 
 export default function UploadImg() {
@@ -318,9 +335,14 @@ export default function UploadImg() {
   const isPanelDisabled = imageQueue.length === 0;
 
   return (
-    <div className="w-full bg-gray-50 min-h-screen lg:p-6">
+    <motion.div
+      className="w-full bg-gray-50 min-h-screen lg:p-6"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
       <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-3rem)]">
-        <div className="flex-grow lg:w-2/3">
+        <motion.div className="flex-grow lg:w-2/3" variants={itemVariants}>
           <div className="p-6 bg-white lg:rounded-2xl shadow-sm border border-gray-200 h-full">
             {activeImage ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
@@ -393,16 +415,15 @@ export default function UploadImg() {
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
 
-        <div className="lg:w-1/3 flex-shrink-0">
+        <motion.div className="lg:w-1/3 flex-shrink-0" variants={itemVariants}>
           <div className="p-6 bg-white lg:rounded-2xl shadow-sm border border-gray-200 h-full flex flex-col">
             <div
               className={`flex flex-col flex-grow min-h-0 space-y-6 transition-opacity duration-300 ${
                 isPanelDisabled ? "opacity-40 pointer-events-none" : ""
               }`}
             >
-              {/* Rasio & Kategori */}
               <div className={`space-y-6`}>
                 <div>
                   <label className="text-sm md:text-base font-semibold text-gray-700 flex items-center mb-3">
@@ -448,7 +469,6 @@ export default function UploadImg() {
                 </div>
               </div>
 
-              {/* Antrean */}
               <div className="flex flex-col flex-grow min-h-0">
                 <label className="text-sm md:text-base font-semibold text-gray-700 flex items-center mb-3">
                   <ListCheck size={18} className="mr-2 text-gray-500" />
@@ -542,8 +562,8 @@ export default function UploadImg() {
               </button>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }
