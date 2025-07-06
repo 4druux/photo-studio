@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import useSWR from "swr"; // Impor useSWR
+import useSWR from "swr";
 import { schedulePackages } from "@/data/packages";
 import BookingCalendar from "@/components/BookingCalendar";
 import PackageNotFound from "@/layout/user/booking/PackageNotFound";
@@ -27,7 +27,6 @@ const formatPhoneNumber = (value) => {
   return numbers;
 };
 
-// Tambahkan fetcher untuk SWR
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function FormBooking() {
@@ -35,7 +34,6 @@ export default function FormBooking() {
   const searchParams = useSearchParams();
   const paketQuery = searchParams.get("paket");
 
-  // Ambil semua data booking menggunakan SWR
   const { data: bookings } = useSWR("/api/bookings/all", fetcher);
 
   const selectedPackage = schedulePackages.find(
@@ -118,11 +116,19 @@ export default function FormBooking() {
 
     setIsLoading(true);
 
+    const toYYYYMMDD = (date) => {
+      const d = new Date(date);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    };
+
     const payload = {
       nama: formData.name,
       telepon: `${PHONE_PREFIX}${formData.phone}`,
       paket: selectedPackage.title,
-      date: bookingDetails.date,
+      date: toYYYYMMDD(bookingDetails.date),
       time: bookingDetails.time,
       catatan: formData.description,
     };
@@ -154,7 +160,6 @@ export default function FormBooking() {
   const { title, features, price } = selectedPackage;
   const isPhoneInvalid = errors.phone || errors.phoneFormat;
 
-  // Proses data booking menjadi array of ISO strings
   const bookedDates = bookings
     ? bookings.map((booking) => new Date(booking.tanggal).toISOString())
     : [];
