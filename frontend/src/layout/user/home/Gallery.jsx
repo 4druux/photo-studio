@@ -13,19 +13,6 @@ import { containerVariants, itemVariants } from "@/utils/animations";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
-const getGridSpan = (aspectRatio) => {
-  if (typeof aspectRatio !== "number" || !aspectRatio) {
-    return "col-span-1 row-span-1";
-  }
-  if (aspectRatio > 1.5) {
-    return "col-span-2 row-span-1";
-  }
-  if (aspectRatio < 0.8) {
-    return "col-span-1 row-span-2";
-  }
-  return "col-span-1 row-span-1";
-};
-
 export default function Gallery() {
   const { data, error } = useSWR("/api/gallery", fetcher);
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -207,32 +194,35 @@ export default function Gallery() {
 
         <motion.div
           key={selectedCategory}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[250px] grid-flow-dense"
+          className="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-min"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.1 }}
         >
-          {filteredImages.slice(0, visibleCount).map((image, index) => (
-            <motion.div
-              key={`${image.src}-${index}`}
-              className={`relative overflow-hidden rounded-xl shadow-lg group cursor-pointer ${getGridSpan(
-                image.aspectRatio
-              )}`}
-              variants={itemVariants}
-              onClick={() => openModal(index)}
-            >
-              <Image
-                src={image.src}
-                alt={image.alt}
-                fill
-                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                className="object-cover w-full h-full transition-transform duration-500 ease-in-out group-hover:scale-105"
-                priority={index < 8}
-              />
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300" />
-            </motion.div>
-          ))}
+          {filteredImages.slice(0, visibleCount).map((image, index) => {
+            const aspectRatio = image.aspectRatio || 1;
+            const rowSpan = Math.round((1 / aspectRatio) * 20);
+            return (
+              <motion.div
+                key={`${image.src}-${index}`}
+                className="relative overflow-hidden rounded-xl shadow-lg group cursor-pointer"
+                style={{ gridRowEnd: `span ${rowSpan}` }}
+                variants={itemVariants}
+                onClick={() => openModal(index)}
+              >
+                <Image
+                  src={image.src}
+                  alt={image.alt}
+                  fill
+                  sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                  className="object-cover w-full h-full transition-transform duration-500 ease-in-out group-hover:scale-105"
+                  priority={index < 8}
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300" />
+              </motion.div>
+            );
+          })}
         </motion.div>
 
         {visibleCount < filteredImages.length && (

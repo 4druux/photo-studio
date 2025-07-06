@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-// --- DATA JAM (bisa disesuaikan) ---
 const timeSlots = [
   "10:30",
   "11:00",
@@ -26,14 +25,11 @@ const timeSlots = [
   "21:30",
 ];
 
-// --- Komponen Kalender ---
 export default function BookingCalendar({ onDateTimeChange }) {
-  // Menggunakan tanggal hari ini secara dinamis
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState(null);
 
-  // Dapatkan tanggal hari ini dan set waktunya ke awal hari untuk perbandingan
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -47,7 +43,6 @@ export default function BookingCalendar({ onDateTimeChange }) {
       day
     );
 
-    // Jangan lakukan apa-apa jika tanggal yang diklik sudah lewat
     if (newSelectedDate < today) return;
 
     setSelectedDate(newSelectedDate);

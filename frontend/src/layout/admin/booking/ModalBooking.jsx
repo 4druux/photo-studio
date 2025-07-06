@@ -3,7 +3,6 @@ import { X, Package, FileText, CalendarClock, User, Phone } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { schedulePackages } from "@/data/packages";
 
-// Utility formatting functions (reuse existing)
 const formatSessionDate = (dateString) => {
   const date = new Date(dateString);
   return date.toLocaleString("id-ID", {

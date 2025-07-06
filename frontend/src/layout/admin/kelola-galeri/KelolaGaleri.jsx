@@ -4,26 +4,13 @@ import { useState, useRef, useEffect } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trash2, AlertTriangle, ChevronLeft, ChevronRight } from "lucide-react";
+import { Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import SweetAlert from "@/components/SweetAlert";
 import DotLoader from "@/components/loading/dotloader";
 import GalleryModal from "@/components/GalleryModal";
 import { containerVariants, itemVariants } from "@/utils/animations";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
-
-const getGridSpan = (aspectRatio) => {
-  if (typeof aspectRatio !== "number" || !aspectRatio) {
-    return "col-span-1 row-span-1";
-  }
-  if (aspectRatio > 1.5) {
-    return "col-span-2 row-span-1";
-  }
-  if (aspectRatio < 0.8) {
-    return "col-span-1 row-span-2";
-  }
-  return "col-span-1 row-span-1";
-};
 
 export default function KelolaGaleri() {
   const { data, error, isLoading } = useSWR("/api/gallery", fetcher);
@@ -102,7 +89,11 @@ export default function KelolaGaleri() {
     if (!confirmed) return;
 
     try {
-      const res = await fetch(`/api/gallery/${filename}`, { method: "DELETE" });
+      const encodedFilename = encodeURIComponent(filename);
+      const res = await fetch(`/api/gallery/${encodedFilename}`, {
+        method: "DELETE",
+      });
+
       if (!res.ok) throw new Error((await res.json()).message);
 
       mutate("/api/gallery");
@@ -234,53 +225,55 @@ export default function KelolaGaleri() {
 
         {filteredImages.length === 0 ? (
           <div className="text-center py-16 text-gray-500">
-            <AlertTriangle className="mx-auto h-12 w-12 text-gray-400 mb-4" />
             Tidak ada gambar untuk kategori "{selectedCategory}".
           </div>
         ) : (
           <>
             <motion.div
               key={selectedCategory}
-              className="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[150px] md:auto-rows-[200px] grid-flow-dense"
+              className="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[20px] grid-flow-dense"
               variants={containerVariants}
               initial="hidden"
               animate="visible"
             >
-              {filteredImages.slice(0, visibleCount).map((image, index) => (
-                <motion.div
-                  key={image.src}
-                  className={`relative group overflow-hidden rounded-lg shadow-sm cursor-pointer ${getGridSpan(
-                    image.aspectRatio
-                  )}`}
-                  variants={itemVariants}
-                  onClick={() => openModal(index)}
-                >
-                  <Image
-                    src={image.src}
-                    alt={image.alt}
-                    fill
-                    sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 transition-all duration-300 flex items-center justify-center">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(image.alt);
-                      }}
-                      className="p-3 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transform scale-75 group-hover:scale-100 transition-all duration-300 hover:bg-red-600"
-                      title="Hapus Gambar"
-                    >
-                      <Trash2 size={20} />
-                    </button>
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/70 to-transparent">
-                    <p className="text-white text-xs font-medium truncate">
-                      {image.categories?.join(", ")}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
+              {filteredImages.slice(0, visibleCount).map((image, index) => {
+                const aspectRatio = image.aspectRatio || 1;
+                const rowSpan = Math.round((1 / aspectRatio) * 10);
+                return (
+                  <motion.div
+                    key={image.src}
+                    className={`relative group overflow-hidden rounded-lg shadow-sm cursor-pointer`}
+                    style={{ gridRowEnd: `span ${rowSpan}` }}
+                    variants={itemVariants}
+                    onClick={() => openModal(index)}
+                  >
+                    <Image
+                      src={image.src}
+                      alt={image.alt}
+                      fill
+                      sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 transition-all duration-300 flex items-center justify-center">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(image.alt);
+                        }}
+                        className="p-3 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transform scale-75 group-hover:scale-100 transition-all duration-300 hover:bg-red-600"
+                        title="Hapus Gambar"
+                      >
+                        <Trash2 size={20} />
+                      </button>
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/70 to-transparent">
+                      <p className="text-white text-xs font-medium truncate">
+                        {image.categories?.join(", ")}
+                      </p>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </motion.div>
 
             {visibleCount < filteredImages.length && (

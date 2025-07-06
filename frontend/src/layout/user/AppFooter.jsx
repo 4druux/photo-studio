@@ -48,10 +48,8 @@ const AppFooter = () => {
             </a>
           </div>
           <p className="w-full text-base text-gray-600">
-            Lorem ipsum dolor sit, amet consectetur adipisicing elit. Illum
-            aliquid, adipisci sunt libero excepturi cumque, similique eum ut
-            fuga ipsa voluptates assumenda, mollitia ex voluptatibus! Nam ea
-            itaque atque voluptatum!
+            Setiap momen punya cerita. Antika Studio hadir untuk membantu Anda
+            mengabadikan tiap detiknya dengan penuh kesan.
           </p>
         </div>
 

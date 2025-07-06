@@ -1,49 +1,43 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { unlink } from "fs/promises";
-import path from "path";
+import { v2 as cloudinary } from "cloudinary";
 
 const prisma = new PrismaClient();
 
-export async function DELETE(request, { params }) {
-  const { id } = params; // 'id' di sini akan berisi nama file dari URL
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+  secure: true,
+});
 
-  if (!id) {
+export async function DELETE(request, { params }) {
+  const publicId = decodeURIComponent(params.id);
+
+  if (!publicId) {
     return NextResponse.json(
-      { success: false, message: "Nama file diperlukan." },
+      { success: false, message: "ID gambar diperlukan." },
       { status: 400 }
     );
   }
 
   try {
-    const image = await prisma.galleryImage.findUnique({
-      where: { filename: id },
+    await new Promise((resolve, reject) => {
+      cloudinary.uploader.destroy(publicId, (error, result) => {
+        if (error) {
+          return reject(new Error("Gagal berkomunikasi dengan Cloudinary."));
+        }
+        if (result.result === "not found") {
+          console.warn(
+            `File dengan public_id ${publicId} tidak ditemukan di Cloudinary, melanjutkan penghapusan dari DB.`
+          );
+        }
+        resolve(result);
+      });
     });
 
-    if (!image) {
-      return NextResponse.json(
-        { success: false, message: "Gambar tidak ditemukan di database." },
-        { status: 404 }
-      );
-    }
-
-    const filePath = path.join(
-      process.cwd(),
-      "public",
-      "uploads",
-      image.filename
-    );
-
-    try {
-      await unlink(filePath);
-    } catch (fileError) {
-      console.warn(
-        `File fisik tidak ditemukan di server: ${filePath}, tapi akan tetap dihapus dari DB.`
-      );
-    }
-
     await prisma.galleryImage.delete({
-      where: { filename: id },
+      where: { filename: publicId },
     });
 
     return NextResponse.json({
@@ -52,8 +46,19 @@ export async function DELETE(request, { params }) {
     });
   } catch (error) {
     console.error("Error saat menghapus gambar:", error);
+
+    if (error.code === "P2025") {
+      return NextResponse.json(
+        { success: false, message: "Gambar tidak ditemukan di database." },
+        { status: 404 }
+      );
+    }
+
     return NextResponse.json(
-      { success: false, message: "Terjadi kesalahan pada server." },
+      {
+        success: false,
+        message: error.message || "Terjadi kesalahan pada server.",
+      },
       { status: 500 }
     );
   } finally {

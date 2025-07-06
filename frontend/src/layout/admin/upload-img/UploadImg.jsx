@@ -20,6 +20,61 @@ import {
 import { motion } from "framer-motion";
 import { containerVariants, itemVariants } from "@/utils/animations";
 
+const resizeImage = (file, maxSizeInMB = 5) => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        let { width, height } = img;
+        const MAX_DIMENSION = 1920; 
+
+        if (width > height) {
+          if (width > MAX_DIMENSION) {
+            height *= MAX_DIMENSION / width;
+            width = MAX_DIMENSION;
+          }
+        } else {
+          if (height > MAX_DIMENSION) {
+            width *= MAX_DIMENSION / height;
+            height = MAX_DIMENSION;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (blob.size / 1024 / 1024 > maxSizeInMB) {
+              canvas.toBlob(
+                (compressedBlob) => {
+                  resolve(
+                    new File([compressedBlob], file.name, {
+                      type: "image/jpeg",
+                    })
+                  );
+                },
+                "image/jpeg",
+                0.7
+              );
+            } else {
+              resolve(new File([blob], file.name, { type: "image/jpeg" }));
+            }
+          },
+          "image/jpeg",
+          0.9
+        );
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+};
+
 const photoCategories = [
   "Couple",
   "Family",
@@ -123,14 +178,19 @@ export default function UploadImg() {
   const activeImage = activeIndex >= 0 ? imageQueue[activeIndex] : null;
 
   const onDrop = useCallback(
-    (acceptedFiles) => {
+    async (acceptedFiles) => {
       if (acceptedFiles?.length) {
-        const newImages = acceptedFiles.map((file) => ({
+        const resizedFiles = await Promise.all(
+          acceptedFiles.map((file) => resizeImage(file))
+        );
+
+        const newImages = resizedFiles.map((file) => ({
           original: URL.createObjectURL(file),
           name: file.name,
           id: `${file.name}-${Date.now()}`,
           categories: [],
         }));
+
         setImageQueue((prev) => [...prev, ...newImages]);
         if (activeIndex === -1) {
           setActiveIndex(0);

@@ -1,4 +1,3 @@
-// File: src/app/api/booking/route.js
 
 import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";

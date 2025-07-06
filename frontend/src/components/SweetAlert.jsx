@@ -19,7 +19,6 @@ const SweetAlert = ({ title, message, icon, showCancel = true }) => {
         reverseButtons: false,
         customClass: {
           popup: "bg-white rounded-2xl shadow-lg p-6 max-w-md mx-auto",
-          // container tombol: kalau ada cancel, pakai gap; kalau tidak, hilangkan space-x
           actions: showCancel
             ? "flex justify-end space-x-4 mt-6"
             : "flex justify-end mt-6",

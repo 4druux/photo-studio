@@ -22,7 +22,6 @@ const Pagination = ({ count, currentIndex, goTo }) => {
     );
   }
 
-  // --- Logika untuk "Sliding Window" ---
   const half = Math.floor(maxVisibleDots / 2);
   let start = Math.max(currentIndex - half, 0);
   let end = start + maxVisibleDots;
@@ -47,7 +46,6 @@ const Pagination = ({ count, currentIndex, goTo }) => {
   );
 };
 
-// --- Komponen Dot terpisah dengan animasi ---
 const Dot = ({ isActive, onClick, label }) => {
   return (
     <motion.button
@@ -55,14 +53,12 @@ const Dot = ({ isActive, onClick, label }) => {
         e.stopPropagation();
         onClick();
       }}
-      // Animasikan lebar dan warna latar
       animate={{
-        width: isActive ? "1.5rem" : "0.5rem", // w-6 vs w-2
+        width: isActive ? "1.5rem" : "0.5rem",
         backgroundColor: isActive
           ? "rgba(255, 255, 255, 1)"
           : "rgba(255, 255, 255, 0.5)",
       }}
-      // Prop 'layout' akan menganimasikan posisi dot secara otomatis
       layout
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
       className="h-2 rounded-full flex items-center justify-center"
@@ -73,7 +69,6 @@ const Dot = ({ isActive, onClick, label }) => {
   );
 };
 
-// --- Komponen Utama GalleryModal ---
 const GalleryModal = ({ images, startIndex, onClose }) => {
   const [currentIndex, setCurrentIndex] = useState(startIndex);
   const [direction, setDirection] = useState(0);
