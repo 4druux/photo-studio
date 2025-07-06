@@ -117,7 +117,7 @@ export default function Booking() {
     <div className="min-h-screen p-0 md:p-12">
       <Toaster position="top-center" />
       <motion.div
-        className="max-w-2xl mx-auto bg-white p-4 md:p-6 rounded-2xl shadow-md"
+        className="max-w-2xl mx-auto bg-white p-4 md:p-6 md:rounded-2xl shadow-md pb-12 md:mb-0"
         variants={containerVariants}
         initial="hidden"
         animate="visible"

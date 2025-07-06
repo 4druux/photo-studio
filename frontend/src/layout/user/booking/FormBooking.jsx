@@ -150,7 +150,7 @@ export default function FormBooking() {
   return (
     <div className="min-h-screen p-0 md:p-12">
       <motion.div
-        className="max-w-2xl mx-auto bg-white p-4 md:p-6 rounded-2xl shadow-md"
+        className="max-w-2xl mx-auto bg-white p-4 md:p-6 md:rounded-2xl shadow-md pb-12 md:mb-0"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -265,6 +265,7 @@ export default function FormBooking() {
               placeholder="Detail tambahan tentang sesi foto Anda..."
             />
           </motion.div>
+
           <motion.button
             type="button"
             onClick={handleSubmit}
@@ -279,8 +280,9 @@ export default function FormBooking() {
             {isLoading && <Loader2 className="animate-spin h-5 w-5 mr-3" />}
             {isLoading ? "Mengirim..." : "Booking Sekarang"}
           </motion.button>
+
           {errors.submit && (
-            <p className="text-red-500 text-xs mtu-1 text-center">
+            <p className="text-red-500 text-xs mt-1 text-center">
               {errors.submit}
             </p>
           )}
