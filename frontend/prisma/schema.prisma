@@ -31,7 +31,9 @@ model Booking {
 model GalleryImage {
   id         Int        @id @default(autoincrement())
   filename   String     @unique 
-  url        String    
+  url        String
+  width      Int?
+  height     Int?
   categories Category[] @relation("ImageToCategory") 
   createdAt  DateTime   @default(now())
 }

@@ -9,7 +9,7 @@ export async function POST(request) {
   try {
     const data = await request.formData();
     const files = data.getAll("images");
-    const categoriesArray = data.getAll("categories");
+    const metadataArray = data.getAll("metadata");
 
     if (!files || files.length === 0) {
       return NextResponse.json(
@@ -22,12 +22,11 @@ export async function POST(request) {
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      const categories = JSON.parse(categoriesArray[i]);
+      const metadata = JSON.parse(metadataArray[i]);
+      const { categories, width, height } = metadata;
 
       const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
       const filename = `${uniqueSuffix}-${file.name.replace(/\s/g, "_")}`;
-
-      // Path ini sekarang akan valid karena folder `uploads` sudah ada
       const filePath = path.join(process.cwd(), "public", "uploads", filename);
 
       const bytes = await file.arrayBuffer();
@@ -35,11 +34,12 @@ export async function POST(request) {
 
       await writeFile(filePath, buffer);
 
-      // Logika untuk menyimpan ke database
       await prisma.galleryImage.create({
         data: {
           filename: filename,
           url: `/uploads/${filename}`,
+          width: width,
+          height: height,
           categories: {
             connectOrCreate: categories.map((categoryName) => ({
               where: { name: categoryName },
@@ -58,9 +58,9 @@ export async function POST(request) {
       fileNames: uploadedFileNames,
     });
   } catch (error) {
-    console.error("Error di server:", error);
+    console.error("Error di server saat upload:", error);
     return NextResponse.json(
-      { success: false, message: "Terjadi kesalahan di server." },
+      { success: false, message: "Terjadi kesalahan pada server." },
       { status: 500 }
     );
   } finally {

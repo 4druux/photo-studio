@@ -9,13 +9,13 @@ import { canvasPreview } from "./canvasPreview";
 import "react-image-crop/dist/ReactCrop.css";
 import {
   UploadCloud,
-  X,
   Scissors,
   Check,
   Image as ImageIcon,
   Tags,
   FileImage,
   Trash2,
+  ListCheck,
 } from "lucide-react";
 
 const photoCategories = [
@@ -49,37 +49,10 @@ function centerAspectCrop(mediaWidth, mediaHeight, aspect) {
   );
 }
 
-const ImageDropzone = ({ getRootProps, getInputProps, isDragActive }) => (
+const CroppedGallery = ({ croppedImages, onEdit, onUpload, isUploading }) => (
   <div className="w-full max-w-4xl mx-auto p-4 lg:p-0">
     <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-      <h1 className="text-md lg:text-lg font-semibold text-gray-600 mb-4">
-        Upload Gambar Galeri
-      </h1>
-      <div
-        {...getRootProps()}
-        className={`flex flex-col items-center justify-center w-full py-16 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
-          isDragActive
-            ? "border-sky-500 bg-sky-50"
-            : "border-gray-300 bg-gray-50 hover:bg-gray-100"
-        }`}
-      >
-        <input {...getInputProps()} />
-        <UploadCloud className="h-12 w-12 text-gray-400 mb-4" />
-        <h2 className="text-lg font-medium text-gray-700">
-          Pilih atau Seret Gambar ke Sini
-        </h2>
-        <p className="mt-1 text-sm text-gray-500">
-          Anda bisa memilih banyak gambar sekaligus
-        </p>
-      </div>
-    </div>
-  </div>
-);
-
-const CroppedGallery = ({ croppedImages, onEdit, onUpload, isUploading }) => (
-  <div className="w-full p-4 lg:p-0">
-    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-      <h1 className="text-md lg:text-lg font-semibold text-gray-600 mb-4">
+      <h1 className="text-base lg:text-lg font-semibold text-gray-600 mb-4">
         Selesai di-crop ({croppedImages.length} gambar)
       </h1>
       <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-7 gap-4 mb-6">
@@ -101,16 +74,17 @@ const CroppedGallery = ({ croppedImages, onEdit, onUpload, isUploading }) => (
       <div className="flex justify-end items-center mt-8 lg:mt-12 gap-4">
         <button
           onClick={onEdit}
-          className="px-6 py-3 border border-sky-600 text-sky-500 text-sm font-semibold rounded-full hover:bg-sky-600 hover:text-white transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+          className="px-6 py-3 border border-sky-500 text-sky-500 text-sm font-semibold rounded-full hover:bg-sky-500 hover:text-white transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
           Edit lagi
         </button>
         <button
           onClick={onUpload}
           disabled={isUploading}
-          className="px-6 py-3 bg-sky-500 text-white text-sm font-semibold rounded-full hover:bg-sky-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+          className="px-6 py-3 bg-gradient-to-br from-sky-400 via-sky-500 to-blue-500 text-white text-sm font-semibold 
+          rounded-full hover:bg-none hover:bg-sky-500 disabled:bg-none disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
-          {isUploading ? "Mengunggah..." : "Upload Semua"}
+          {isUploading ? "Mengunggah..." : "Upload"}
         </button>
       </div>
     </div>
@@ -194,8 +168,11 @@ export default function UploadImg() {
     }
     if (indexToRemove < activeIndex) {
       setActiveIndex((prev) => prev - 1);
-    } else if (indexToRemove === activeIndex) {
-      setActiveIndex((prev) => Math.max(0, prev - 1));
+    } else if (
+      indexToRemove === activeIndex &&
+      indexToRemove >= newQueue.length
+    ) {
+      setActiveIndex(newQueue.length - 1);
     }
   };
 
@@ -204,7 +181,8 @@ export default function UploadImg() {
       completedCrop &&
       previewCanvasRef.current &&
       imgRef.current &&
-      activeImage
+      activeImage &&
+      activeImage.categories.length > 0
     ) {
       await canvasPreview(
         imgRef.current,
@@ -212,6 +190,8 @@ export default function UploadImg() {
         completedCrop
       );
       const dataUrl = previewCanvasRef.current.toDataURL("image/png");
+      const width = previewCanvasRef.current.width;
+      const height = previewCanvasRef.current.height;
 
       setCroppedImages((prev) => [
         ...prev.filter((img) => img.id !== activeImage.id),
@@ -220,6 +200,8 @@ export default function UploadImg() {
           name: activeImage.name,
           categories: activeImage.categories,
           id: activeImage.id,
+          width: width,
+          height: height,
         },
       ]);
 
@@ -228,6 +210,8 @@ export default function UploadImg() {
       } else {
         setActiveIndex(-1);
       }
+    } else {
+      toast.error("Harap pilih setidaknya satu kategori.");
     }
   };
 
@@ -237,11 +221,9 @@ export default function UploadImg() {
       bstr = atob(arr[1]),
       n = bstr.length,
       u8arr = new Uint8Array(n);
-
     while (n--) {
       u8arr[n] = bstr.charCodeAt(n);
     }
-
     return new File([u8arr], filename, { type: mime });
   }
 
@@ -250,33 +232,33 @@ export default function UploadImg() {
       toast.error("Tidak ada gambar untuk di-upload.");
       return;
     }
-
     setIsUploading(true);
     const formData = new FormData();
-
     croppedImages.forEach((image) => {
       const file = dataURLtoFile(image.src, image.name);
       formData.append("images", file);
-      formData.append("categories", JSON.stringify(image.categories));
+      formData.append(
+        "metadata",
+        JSON.stringify({
+          categories: image.categories,
+          width: image.width,
+          height: image.height,
+        })
+      );
     });
-
     try {
       const response = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       });
-
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Gagal meng-upload gambar.");
       }
-
       const result = await response.json();
-
       toast.success(result.message || "Semua gambar berhasil di-upload!", {
         className: "custom-toast",
       });
-
       router.push("/admin/kelola-galeri");
     } catch (error) {
       console.error("Error saat upload:", error);
@@ -302,22 +284,27 @@ export default function UploadImg() {
     }
   }, [completedCrop]);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const {
+    getRootProps: mainGetRootProps,
+    getInputProps: mainGetInputProps,
+    isDragActive: isMainDragActive,
+  } = useDropzone({
     accept: { "image/*": [] },
     onDrop,
+    noClick: false,
   });
 
-  if (imageQueue.length === 0) {
-    return (
-      <ImageDropzone
-        getRootProps={getRootProps}
-        getInputProps={getInputProps}
-        isDragActive={isDragActive}
-      />
-    );
-  }
+  const {
+    getRootProps: queueGetRootProps,
+    getInputProps: queueGetInputProps,
+    isDragActive: isQueueDragActive,
+  } = useDropzone({
+    accept: { "image/*": [] },
+    onDrop,
+    noClick: false,
+  });
 
-  if (activeIndex === -1 && croppedImages.length > 0) {
+  if (activeIndex === -1 && croppedImages.length > 0 && imageQueue.length > 0) {
     return (
       <CroppedGallery
         croppedImages={croppedImages}
@@ -328,169 +315,226 @@ export default function UploadImg() {
     );
   }
 
-  if (!activeImage) {
-    return <div className="text-center p-10">Memuat...</div>;
-  }
+  const isPanelDisabled = imageQueue.length === 0;
 
   return (
     <div className="w-full bg-gray-50 min-h-screen lg:p-6">
-      <div className="flex flex-col lg:flex-row gap-6">
+      <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-3rem)]">
         <div className="flex-grow lg:w-2/3">
-          <div className="p-6 bg-white lg:rounded-2xl shadow-sm border border-gray-200">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
-              <div className="space-y-4">
-                <h1 className="text-md lg:text-lg font-semibold text-gray-600 mb-4">
-                  Potong Gambar ({activeIndex + 1}/{imageQueue.length})
-                </h1>
-                <div className="w-full aspect-[16/9] bg-gray-100 rounded-xl flex items-center justify-center p-2">
-                  <ReactCrop
-                    crop={crop}
-                    onChange={(pixelCrop, percentCrop) => {
-                      setCrop(percentCrop);
-                      setCompletedCrop(pixelCrop);
-                    }}
-                    aspect={aspect}
-                  >
-                    <img
-                      ref={imgRef}
-                      alt="Crop area"
-                      src={activeImage.original}
-                      onLoad={onImageLoad}
-                      style={{
-                        display: "block",
-                        maxHeight: "100%",
-                        maxWidth: "100%",
-                      }}
-                    />
-                  </ReactCrop>
+          <div className="p-6 bg-white lg:rounded-2xl shadow-sm border border-gray-200 h-full">
+            {activeImage ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
+                <div className="space-y-4">
+                  <h1 className="text-base lg:text-lg font-semibold text-gray-600 mb-4">
+                    Potong Gambar ({activeIndex + 1}/{imageQueue.length})
+                  </h1>
+                  <div className="w-full aspect-[16/9] bg-gray-100 rounded-xl flex items-center justify-center p-2">
+                    <ReactCrop
+                      crop={crop}
+                      onChange={(_, percentCrop) => setCrop(percentCrop)}
+                      onComplete={(c) => setCompletedCrop(c)}
+                      aspect={aspect}
+                    >
+                      <img
+                        ref={imgRef}
+                        alt="Crop area"
+                        src={activeImage.original}
+                        onLoad={onImageLoad}
+                        style={{
+                          display: "block",
+                          maxHeight: "100%",
+                          maxWidth: "100%",
+                        }}
+                      />
+                    </ReactCrop>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <h1 className="text-base lg:text-lg font-semibold text-gray-600 mb-4">
+                    Preview
+                  </h1>
+                  <div className="w-full aspect-[16/9] bg-gray-100 rounded-xl flex items-center justify-center p-2">
+                    {completedCrop?.width ? (
+                      <canvas
+                        ref={previewCanvasRef}
+                        className="rounded-lg shadow-inner"
+                        style={{
+                          aspectRatio: aspect,
+                          maxWidth: "100%",
+                          maxHeight: "100%",
+                          objectFit: "contain",
+                        }}
+                      />
+                    ) : (
+                      <div className="text-center text-sm text-gray-400">
+                        <p>Arahkan area potong</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div
+                {...mainGetRootProps()}
+                className={`flex flex-col items-center justify-center h-full p-4 text-center text-gray-500 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
+                  isMainDragActive
+                    ? "border-sky-500 bg-sky-50 text-sky-600"
+                    : "border-gray-300 bg-gray-50 hover:bg-gray-100"
+                }`}
+              >
+                <input {...mainGetInputProps()} />
+                <UploadCloud className="h-12 w-12 mb-4" />
+                <h2 className="text-sm lg:text-lg font-medium">
+                  Pilih atau Seret Gambar ke Sini
+                </h2>
+                <p className="max-w-xs text-xs lg:text-sm">
+                  Anda bisa memilih banyak gambar sekaligus untuk memulai.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="lg:w-1/3 flex-shrink-0">
+          <div className="p-6 bg-white lg:rounded-2xl shadow-sm border border-gray-200 h-full flex flex-col">
+            <div
+              className={`flex flex-col flex-grow min-h-0 space-y-6 transition-opacity duration-300 ${
+                isPanelDisabled ? "opacity-40 pointer-events-none" : ""
+              }`}
+            >
+              {/* Rasio & Kategori */}
+              <div className={`space-y-6`}>
+                <div>
+                  <label className="text-sm md:text-base font-semibold text-gray-700 flex items-center mb-3">
+                    <Scissors size={18} className="mr-2 text-gray-500" /> Pilih
+                    Rasio
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {imageRatios.map((r) => (
+                      <button
+                        key={r.label}
+                        onClick={() => handleAspectChange(r.value)}
+                        className={`px-3 py-2 text-xs md:text-sm font-medium rounded-lg transition-all ${
+                          aspect === r.value
+                            ? "bg-sky-500 text-white shadow"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        }`}
+                      >
+                        {r.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm md:text-base font-semibold text-gray-700 flex items-center mb-3">
+                    <Tags size={18} className="mr-2 text-gray-500" /> Pilih
+                    Kategori
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {photoCategories.map((cat) => (
+                      <button
+                        key={cat}
+                        onClick={() => handleCategoryToggle(cat)}
+                        className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+                          activeImage?.categories.includes(cat)
+                            ? "bg-sky-600 text-white"
+                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <h1 className="text-md lg:text-lg font-semibold text-gray-600 mb-4">
-                  Preview
-                </h1>
-                <div className="w-full aspect-[16/9] bg-gray-100 rounded-xl flex items-center justify-center p-2">
-                  {completedCrop?.width ? (
-                    <canvas
-                      ref={previewCanvasRef}
-                      className="rounded-lg shadow-inner"
-                      style={{
-                        aspectRatio: aspect,
-                        maxWidth: "100%",
-                        maxHeight: "100%",
-                        objectFit: "contain",
-                      }}
-                    />
+              {/* Antrean */}
+              <div className="flex flex-col flex-grow min-h-0">
+                <label className="text-sm md:text-base font-semibold text-gray-700 flex items-center mb-3">
+                  <ListCheck size={18} className="mr-2 text-gray-500" />
+                  Antrean
+                </label>
+                <div className="space-y-2 overflow-y-auto p-2 flex-grow border rounded-lg">
+                  {imageQueue.length > 0 ? (
+                    <>
+                      {imageQueue.map((img, index) => (
+                        <div
+                          key={img.id}
+                          onClick={() => setActiveIndex(index)}
+                          className={`flex items-center p-1 rounded-lg cursor-pointer transition-colors group ${
+                            index === activeIndex
+                              ? "bg-sky-100 ring-2 ring-sky-500"
+                              : "hover:bg-gray-100"
+                          }`}
+                        >
+                          <div className="flex-shrink-0 w-10 h-10 mr-3">
+                            {croppedImages.find((ci) => ci.id === img.id) ? (
+                              <img
+                                src={
+                                  croppedImages.find((ci) => ci.id === img.id)
+                                    .src
+                                }
+                                alt="Cropped thumbnail"
+                                className="w-full h-full object-cover rounded-md"
+                              />
+                            ) : (
+                              <FileImage className="w-full h-full text-gray-300 p-1" />
+                            )}
+                          </div>
+                          <span className="text-sm text-gray-800 truncate flex-grow">
+                            {img.name}
+                          </span>
+                          {croppedImages.find((ci) => ci.id === img.id) && (
+                            <Check
+                              size={20}
+                              className="text-green-500 mx-2 flex-shrink-0"
+                            />
+                          )}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveFromQueue(index);
+                            }}
+                            className="p-1 rounded-full hover:bg-red-100 hover:text-red-600 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      ))}
+                      <div
+                        {...queueGetRootProps()}
+                        className={`flex flex-col items-center justify-center w-full p-6 mt-2 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
+                          isQueueDragActive
+                            ? "border-sky-500 bg-sky-50"
+                            : "border-gray-300 bg-gray-50 hover:bg-gray-100"
+                        }`}
+                      >
+                        <input {...queueGetInputProps()} />
+                        <UploadCloud className="h-8 w-8 text-gray-400 mb-2" />
+                        <p className="text-sm text-center text-gray-600">
+                          Tambah gambar
+                        </p>
+                      </div>
+                    </>
                   ) : (
-                    <div className="text-center text-sm text-gray-400">
-                      <p>Arahkan area potong</p>
+                    <div className="flex-1 flex items-center justify-center text-center text-gray-900 text-xs md:text-sm min-h-28">
+                      <p>Tidak ada gambar di antrean.</p>
                     </div>
                   )}
                 </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div className="lg:w-1/3 flex-shrink-0">
-          <div className="p-6 bg-white lg:rounded-2xl shadow-sm border border-gray-200 space-y-8 h-full flex flex-col">
-            <div>
-              <label className="text-md font-semibold text-gray-700 flex items-center mb-3">
-                <Scissors size={18} className="mr-2 text-gray-500" /> Pilih
-                Rasio
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {imageRatios.map((r) => (
-                  <button
-                    key={r.label}
-                    onClick={() => handleAspectChange(r.value)}
-                    className={`px-3 py-2 text-sm font-medium rounded-lg transition-all ${
-                      aspect === r.value
-                        ? "bg-sky-500 text-white shadow"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
-                  >
-                    {r.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="text-md font-semibold text-gray-700 flex items-center mb-3">
-                <Tags size={18} className="mr-2 text-gray-500" /> Pilih Kategori
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {photoCategories.map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => handleCategoryToggle(cat)}
-                    className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
-                      activeImage.categories.includes(cat)
-                        ? "bg-sky-600 text-white"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex flex-col flex-grow min-h-0">
-              <h3 className="text-md font-semibold text-gray-700 mb-3">
-                Antrean
-              </h3>
-              <div className="space-y-2 overflow-y-auto p-2 flex-grow">
-                {imageQueue.map((img, index) => (
-                  <div
-                    key={img.id}
-                    onClick={() => setActiveIndex(index)}
-                    className={`flex items-center p-1 rounded-lg cursor-pointer transition-colors group ${
-                      index === activeIndex
-                        ? "bg-sky-100 ring-2 ring-sky-500"
-                        : "hover:bg-gray-100"
-                    }`}
-                  >
-                    <div className="flex-shrink-0 w-10 h-10 mr-3">
-                      {croppedImages.find((ci) => ci.id === img.id) ? (
-                        <img
-                          src={croppedImages.find((ci) => ci.id === img.id).src}
-                          className="w-full h-full object-cover rounded-md"
-                        />
-                      ) : (
-                        <FileImage className="w-full h-full text-gray-300 p-1" />
-                      )}
-                    </div>
-                    <span className="text-sm text-gray-800 truncate flex-grow">
-                      {img.name}
-                    </span>
-                    {croppedImages.find((ci) => ci.id === img.id) && (
-                      <Check
-                        size={20}
-                        className="text-green-500 mx-2 flex-shrink-0"
-                      />
-                    )}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRemoveFromQueue(index);
-                      }}
-                      className="p-1 rounded-full hover:bg-red-100 hover:text-red-600 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-gray-200">
+            <div className="pt-4">
               <button
                 onClick={handleCropAndNext}
-                disabled={!completedCrop}
-                className="w-full py-3 bg-sky-500 text-white text-sm font-semibold rounded-full hover:bg-sky-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                disabled={
+                  !activeImage ||
+                  !completedCrop ||
+                  activeImage.categories.length === 0
+                }
+                className="w-full py-3 bg-gradient-to-br from-sky-400 via-sky-500 to-blue-500 text-white text-sm 
+                font-semibold rounded-full hover:bg-none hover:bg-sky-500 disabled:bg-none disabled:bg-gray-300 disabled:cursor-not-allowed"
               >
                 {activeIndex === imageQueue.length - 1
                   ? "Selesai & Lihat Galeri"

@@ -1,0 +1,233 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
+import { Camera, ChevronLeft, ChevronRight, X } from "lucide-react";
+
+const Pagination = ({ count, currentIndex, goTo }) => {
+  const maxVisibleDots = 5;
+
+  if (count <= maxVisibleDots) {
+    return (
+      <div className="flex justify-center items-center gap-2">
+        {Array.from({ length: count }).map((_, index) => (
+          <Dot
+            key={index}
+            isActive={currentIndex === index}
+            onClick={() => goTo(index)}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  // --- Logika untuk "Sliding Window" ---
+  const half = Math.floor(maxVisibleDots / 2);
+  let start = Math.max(currentIndex - half, 0);
+  let end = start + maxVisibleDots;
+
+  if (end > count) {
+    start = count - maxVisibleDots;
+    end = count;
+  }
+
+  const dots = Array.from({ length: end - start }).map((_, i) => start + i);
+
+  return (
+    <div className="flex justify-center items-center gap-2">
+      {dots.map((index) => (
+        <Dot
+          key={index}
+          isActive={currentIndex === index}
+          onClick={() => goTo(index)}
+        />
+      ))}
+    </div>
+  );
+};
+
+// --- Komponen Dot terpisah dengan animasi ---
+const Dot = ({ isActive, onClick, label }) => {
+  return (
+    <motion.button
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
+      // Animasikan lebar dan warna latar
+      animate={{
+        width: isActive ? "1.5rem" : "0.5rem", // w-6 vs w-2
+        backgroundColor: isActive
+          ? "rgba(255, 255, 255, 1)"
+          : "rgba(255, 255, 255, 0.5)",
+      }}
+      // Prop 'layout' akan menganimasikan posisi dot secara otomatis
+      layout
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+      className="h-2 rounded-full flex items-center justify-center"
+      aria-label={`Go to item ${label || ""}`}
+    >
+      {label && <span className="text-black text-xs font-bold">{label}</span>}
+    </motion.button>
+  );
+};
+
+// --- Komponen Utama GalleryModal ---
+const GalleryModal = ({ images, startIndex, onClose }) => {
+  const [currentIndex, setCurrentIndex] = useState(startIndex);
+  const [direction, setDirection] = useState(0);
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, []);
+
+  const changeImage = (newIndex) => {
+    setDirection(newIndex > currentIndex ? 1 : -1);
+    setCurrentIndex(newIndex);
+  };
+
+  const handleNext = () => {
+    changeImage((currentIndex + 1) % images.length);
+  };
+
+  const handlePrev = () => {
+    changeImage((currentIndex - 1 + images.length) % images.length);
+  };
+
+  const handleDragEnd = (event, info) => {
+    const swipeThreshold = 50;
+    if (info.offset.x > swipeThreshold) {
+      handlePrev();
+    } else if (info.offset.x < -swipeThreshold) {
+      handleNext();
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "ArrowRight") handleNext();
+      if (e.key === "ArrowLeft") handlePrev();
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [currentIndex, images.length]);
+
+  const imageVariants = {
+    enter: (direction) => ({
+      x: direction > 0 ? "100%" : "-100%",
+      opacity: 0,
+    }),
+    center: { zIndex: 1, x: 0, opacity: 1 },
+    exit: (direction) => ({
+      zIndex: 0,
+      x: direction < 0 ? "100%" : "-100%",
+      opacity: 0,
+    }),
+  };
+
+  const currentImage = images[currentIndex];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm z-50 flex flex-col items-center justify-center"
+      onClick={onClose}
+    >
+      <button
+        className="absolute top-4 right-4 text-white z-50 p-2 bg-black/50 rounded-full hover:bg-black/80 transition-colors"
+        onClick={onClose}
+        aria-label="Close modal"
+      >
+        <X size={24} />
+      </button>
+
+      {/* Kontrol Navigasi Kiri/Kanan */}
+      <div className="hidden md:block">
+        <button
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-white z-50 p-2 bg-black/50 rounded-full hover:bg-black/80 transition-colors"
+          onClick={(e) => {
+            e.stopPropagation();
+            handlePrev();
+          }}
+          aria-label="Previous image"
+        >
+          <ChevronLeft size={32} />
+        </button>
+        <button
+          className="absolute right-4 top-1/2 -translate-y-1/2 text-white z-50 p-2 bg-black/50 rounded-full hover:bg-black/80 transition-colors"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleNext();
+          }}
+          aria-label="Next image"
+        >
+          <ChevronRight size={32} />
+        </button>
+      </div>
+
+      {/* Kontainer Gambar Utama */}
+      <div
+        className="relative w-full flex-grow flex items-center justify-center overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <AnimatePresence initial={false} custom={direction}>
+          <motion.div
+            key={currentIndex}
+            className="absolute w-full h-full flex items-center justify-center p-4 md:p-16"
+            custom={direction}
+            variants={imageVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={1}
+            onDragEnd={handleDragEnd}
+          >
+            <Image
+              src={currentImage.src}
+              alt={currentImage.alt}
+              width={currentImage.width || 1200}
+              height={currentImage.height || 800}
+              className="object-contain max-w-full max-h-full shadow-2xl rounded-lg"
+              style={{ width: "auto", height: "auto" }}
+              priority
+            />
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Kontainer untuk Paginasi dan Info */}
+      <div
+        className="absolute bottom-0 left-0 right-0 p-4 z-50 flex flex-col items-center gap-4 bg-gradient-to-t from-black/80 to-transparent"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mb-2">
+          <Pagination
+            count={images.length}
+            currentIndex={currentIndex}
+            goTo={changeImage}
+          />
+        </div>
+
+        {/* Info Kategori */}
+        {currentImage.categories && currentImage.categories.length > 0 && (
+          <div className="flex items-center justify-center gap-2 text-white/90 bg-white/30 w-fit mx-auto py-2 px-4 rounded-full">
+            <Camera size={16} />
+            <p className="text-sm">{currentImage.categories.join(", ")}</p>
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+};
+
+export default GalleryModal;

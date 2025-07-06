@@ -29,18 +29,21 @@ const AppFooter = () => {
           />
           <div className="flex items-center space-x-3 my-3">
             <a
-              href="https://api.whatsapp.com/send/?phone=%2B6285810249867&text&type=phone_number&app_absent=0"
+              href="https://api.whatsapp.com/send/?phone=%2B62895332188227&text&type=phone_number&app_absent=0"
               target="_blank"
             >
               <FaWhatsapp className="w-6 h-6 text-green-500 hover:-translate-y-1 transition-all duration-300 ease-in-out cursor-pointer" />
             </a>
-            <a href="https://twitter.com" target="_blank">
-              <FaFacebook className="w-6 h-6 text-blue-500 hover:-translate-y-1 transition-all duration-300 ease-in-out cursor-pointer" />
-            </a>
-            <a href="https://www.tiktok.com" target="_blank">
+            <a
+              href="https://www.tiktok.com/@antika.selfphotostudio"
+              target="_blank"
+            >
               <AiFillTikTok className="w-6 h-6 text-[#262626] hover:-translate-y-1 transition-all duration-300 ease-in-out cursor-pointer" />
             </a>
-            <a href="https://www.instagram.com" target="_blank">
+            <a
+              href="https://www.instagram.com/antika.selfphotostudio"
+              target="_blank"
+            >
               <FaInstagram className="w-6 h-6 text-[#E4405F] hover:-translate-y-1 transition-all duration-300 ease-in-out cursor-pointer" />
             </a>
           </div>
@@ -87,8 +90,11 @@ const AppFooter = () => {
           </p>
           <ul className="flex flex-col gap-2 text-gray-600">
             <li className="hover:text-sky-600 cursor-pointer text-base underline">
-              <a href="" target="_blank">
-                +62xxxxxx
+              <a
+                href="https://api.whatsapp.com/send/?phone=%2B62895332188227&text&type=phone_number&app_absent=0"
+                target="_blank"
+              >
+                +62895-3321-88227
               </a>
             </li>
             <li className="hover:text-sky-600 cursor-pointer text-base underline">
@@ -105,7 +111,7 @@ const AppFooter = () => {
           </p>
           <ul className="flex flex-col gap-2 text-gray-600">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1167.9546749967333!2d106.82207644437337!3d-6.19526301381514!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f5561518a139%3A0x2911f3a14f98eea7!2sBundaran%20HI!5e0!3m2!1sid!2sid!4v1749726402843!5m2!1sid!2sid"
+              src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3964.8774850927057!2d106.70882037499196!3d-6.409779093581011!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNsKwMjQnMzUuMiJTIDEwNsKwNDInNDEuMCJF!5e0!3m2!1sid!2sid!4v1751782104655!5m2!1sid!2sid"
               width="300"
               height="200"
               style={{ border: 0 }}
@@ -120,7 +126,7 @@ const AppFooter = () => {
       <div className="container mx-auto">
         <p className="border-t border-gray-300" />
         <div className="py-5 text-sm text-gray-600 flex justify-center">
-          <p> Hak Cipta © 2025 Foto Studio.</p>
+          <p> Hak Cipta © {new Date().getFullYear()} Antika Studio.</p>
         </div>
       </div>
     </div>

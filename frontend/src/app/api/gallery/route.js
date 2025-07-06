@@ -18,14 +18,13 @@ export async function GET() {
       },
     });
 
-    // Ubah format data agar lebih mudah digunakan di frontend
     const formattedImages = images.map((img) => ({
       src: img.url,
       alt: img.filename,
       categories: img.categories.map((cat) => cat.name),
+      aspectRatio: img.width && img.height ? img.width / img.height : 1,
     }));
 
-    // Dapatkan semua kategori unik dari database
     const categories = await prisma.category.findMany({
       select: { name: true },
     });
@@ -46,5 +45,4 @@ export async function GET() {
   }
 }
 
-// Pastikan route ini tidak di-cache agar data selalu baru
 export const dynamic = "force-dynamic";

@@ -197,7 +197,7 @@ export default function Booking() {
       </div>
 
       <div className="lg:hidden space-y-4 p-4">
-        <h1 className="text-md  font-semibold text-gray-600">
+        <h1 className="text-base font-semibold text-gray-600">
           Kelola Daftar Booking
         </h1>
         {displayedBookings.map((booking) => (

@@ -3,7 +3,7 @@ import React from "react";
 const Description = ({
   text,
   className = "",
-  textSize = "text-md lg:text-lg",
+  textSize = "text-sm lg:text-lg",
 }) => {
   return (
     <div className={className}>

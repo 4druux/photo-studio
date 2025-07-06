@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import useSWR from "swr";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Tittle from "@/components/text/Tittle";
 import Description from "@/components/text/Description";
 import DotLoader from "@/components/loading/dotloader";
+import GalleryModal from "@/components/GalleryModal";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -27,9 +29,91 @@ const itemVariants = {
   },
 };
 
+const getGridSpan = (aspectRatio) => {
+  if (typeof aspectRatio !== "number" || !aspectRatio) {
+    return "col-span-1 md:col-span-1 md:row-span-1";
+  }
+  if (aspectRatio > 1.4) {
+    return "col-span-2 md:col-span-2 md:row-span-1";
+  }
+  if (aspectRatio < 0.7 || aspectRatio < 0.9) {
+    return "col-span-1 md:col-span-1 md:row-span-2";
+  }
+  return "col-span-1 md:col-span-1 md:row-span-1";
+};
+
 export default function Gallery() {
   const { data, error } = useSWR("/api/gallery", fetcher);
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [visibleCount, setVisibleCount] = useState(10);
+
+  const scrollContainerRef = useRef(null);
+  const btnRefs = useRef([]);
+
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const mq = window.matchMedia("(pointer: coarse)");
+      setIsTouchDevice(mq.matches);
+      const handler = (e) => setIsTouchDevice(e.matches);
+      mq.addEventListener("change", handler);
+      return () => mq.removeEventListener("change", handler);
+    }
+  }, []);
+
+  const checkScroll = () => {
+    const c = scrollContainerRef.current;
+    if (c) {
+      const { scrollLeft, scrollWidth, clientWidth } = c;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 1);
+    }
+  };
+
+  useEffect(() => {
+    const c = scrollContainerRef.current;
+    if (c) {
+      checkScroll();
+      c.addEventListener("scroll", checkScroll);
+      window.addEventListener("resize", checkScroll);
+      return () => {
+        c.removeEventListener("scroll", checkScroll);
+        window.removeEventListener("resize", checkScroll);
+      };
+    }
+  }, [data]);
+
+  const handleScroll = (offset) => {
+    const c = scrollContainerRef.current;
+    if (c) {
+      c.scrollBy({ left: offset, behavior: "smooth" });
+    }
+  };
+
+  const handleCategoryClick = (category, idx) => {
+    setSelectedCategory(category);
+    setVisibleCount(10); // reset count when category changes
+    const c = scrollContainerRef.current;
+    const b = btnRefs.current[idx];
+    if (c && b) {
+      const scrollTo = b.offsetLeft - c.clientWidth / 2 + b.offsetWidth / 2;
+      c.scrollTo({ left: scrollTo, behavior: "smooth" });
+    }
+  };
+
+  const openModal = (index) => {
+    setSelectedImageIndex(index);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+  };
 
   if (error)
     return <div className="text-center py-12">Gagal memuat galeri.</div>;
@@ -42,25 +126,39 @@ export default function Gallery() {
 
   const { images, categories } = data;
   const allCategories = ["All", ...categories];
-
   const filteredImages =
     selectedCategory === "All"
       ? images
-      : images.filter((image) => image.categories.includes(selectedCategory));
+      : images.filter(
+          (img) => img.categories && img.categories.includes(selectedCategory)
+        );
 
-  // Logika baru untuk layout yang lebih stabil dan menarik
-  const getSpanClass = (index) => {
-    // Pola ini akan membuat gambar pertama lebar, dan beberapa gambar lainnya tinggi.
-    const patternIndex = index % 11;
-    if (patternIndex === 0) return "md:col-span-2 md:row-span-2"; // Gambar besar
-    if (patternIndex === 5 || patternIndex === 9) return "md:row-span-2"; // Gambar tinggi
-    return "md:col-span-1 md:row-span-1"; // Gambar standar
-  };
+  const dragProps = isTouchDevice
+    ? {
+        drag: "x",
+        dragConstraints: { left: 0, right: 0 },
+        dragElastic: 0.2,
+        onDrag: (_, info) => {
+          scrollContainerRef.current.scrollLeft -= info.delta.x;
+        },
+      }
+    : {};
 
   return (
     <section className="pt-12 md:pt-24">
+      <style jsx global>{`
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+          -webkit-overflow-scrolling: touch;
+          touch-action: pan-x;
+        }
+      `}</style>
       <div className="container mx-auto px-4">
-        <div className="text-center mb-8 lg:mb-12">
+        <div className="text-center mb-4">
           <Tittle text="Galeri Momen" />
           <Description
             text="Setiap gambar memiliki cerita. Inilah beberapa di antaranya, disajikan dalam komposisi yang indah."
@@ -68,25 +166,49 @@ export default function Gallery() {
           />
         </div>
 
-        {/* Filter Buttons */}
-        <div className="flex justify-center flex-wrap gap-3 mb-8">
-          {allCategories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`px-5 py-2 text-sm font-semibold rounded-full transition-all duration-300
-                ${
+        {/* Category scroller */}
+        <div className="relative w-full max-w-4xl mx-auto mb-8">
+          {canScrollLeft && (
+            <motion.button
+              onClick={() => handleScroll(-250)}
+              className="absolute -left-5 top-1/2 -translate-y-1/2 z-10 p-1.5 bg-white/80 backdrop-blur-sm rounded-full shadow-md hover:bg-white transition-all duration-300 hidden md:flex items-center justify-center"
+            >
+              <ChevronLeft className="w-5 h-5 text-gray-700" />
+            </motion.button>
+          )}
+
+          <motion.div
+            ref={scrollContainerRef}
+            className="flex items-center gap-3 overflow-x-auto whitespace-nowrap py-1 no-scrollbar"
+            {...dragProps}
+          >
+            {allCategories.map((category, idx) => (
+              <button
+                key={category}
+                ref={(el) => (btnRefs.current[idx] = el)}
+                onClick={() => handleCategoryClick(category, idx)}
+                className={`px-5 py-2 text-sm font-semibold rounded-full shrink-0 transition-all duration-300 ${
                   selectedCategory === category
                     ? "bg-sky-500 text-white shadow-md"
-                    : "bg-white text-gray-700 hover:bg-gray-100 shadow-sm"
+                    : "bg-white text-gray-600 hover:bg-gray-100 shadow-sm"
                 }`}
+              >
+                {category}
+              </button>
+            ))}
+          </motion.div>
+
+          {canScrollRight && (
+            <motion.button
+              onClick={() => handleScroll(250)}
+              className="absolute -right-5 top-1/2 -translate-y-1/2 z-10 p-1.5 bg-white/80 backdrop-blur-sm rounded-full shadow-md hover:bg-white transition-all duration-300 hidden md:flex items-center justify-center"
             >
-              {category}
-            </button>
-          ))}
+              <ChevronRight className="w-5 h-5 text-gray-700" />
+            </motion.button>
+          )}
         </div>
 
-        {/* **PERBAIKAN UTAMA PADA GRID** */}
+        {/* Gallery grid */}
         <motion.div
           key={selectedCategory}
           className="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[250px]"
@@ -94,13 +216,14 @@ export default function Gallery() {
           initial="hidden"
           animate="visible"
         >
-          {filteredImages.map((image, index) => (
+          {filteredImages.slice(0, visibleCount).map((image, index) => (
             <motion.div
               key={`${image.src}-${index}`}
-              className={`relative overflow-hidden rounded-xl shadow-lg group cursor-pointer ${getSpanClass(
-                index
+              className={`relative overflow-hidden rounded-xl shadow-lg group cursor-pointer ${getGridSpan(
+                image.aspectRatio
               )}`}
               variants={itemVariants}
+              onClick={() => openModal(index)}
             >
               <Image
                 src={image.src}
@@ -115,6 +238,18 @@ export default function Gallery() {
           ))}
         </motion.div>
 
+        {/* Load More button */}
+        {visibleCount < filteredImages.length && (
+          <div className="text-center mt-8">
+            <button
+              onClick={() => setVisibleCount((prev) => prev + 10)}
+              className="px-6 py-3 bg-gradient-to-br from-sky-400 via-sky-500 to-blue-500 text-white text-sm font-semibold rounded-full hover:bg-none hover:bg-sky-500"
+            >
+              Muat Lebih Banyak
+            </button>
+          </div>
+        )}
+
         {filteredImages.length === 0 && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -125,6 +260,16 @@ export default function Gallery() {
           </motion.div>
         )}
       </div>
+
+      <AnimatePresence>
+        {modalOpen && (
+          <GalleryModal
+            images={filteredImages}
+            startIndex={selectedImageIndex}
+            onClose={closeModal}
+          />
+        )}
+      </AnimatePresence>
     </section>
   );
 }

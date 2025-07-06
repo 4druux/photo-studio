@@ -1,13 +1,12 @@
-"use client";
-
-import { X, Package, FileText } from "lucide-react";
+import React from "react";
+import { X, Package, FileText, CalendarClock, User, Phone } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { schedulePackages } from "@/data/packages";
 
-// Utility untuk format tanggal
-const formatDate = (dateString) => {
+// Utility formatting functions (reuse existing)
+const formatSessionDate = (dateString) => {
   const date = new Date(dateString);
-  return date.toLocaleDateString("id-ID", {
+  return date.toLocaleString("id-ID", {
     day: "2-digit",
     month: "long",
     year: "numeric",
@@ -15,109 +14,129 @@ const formatDate = (dateString) => {
     minute: "2-digit",
   });
 };
-
-// Badge status
-const StatusBadge = ({ status }) => {
-  const base = "px-3 py-1 text-xs font-medium rounded-full";
-  const styles = {
-    PENDING: "bg-yellow-100 text-yellow-700",
-    CONFIRMED: "bg-green-100 text-green-700",
-    CANCELLED: "bg-red-100 text-red-700",
-  };
-  return <span className={`${base} ${styles[status]}`}>{status}</span>;
+const formatCreationDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
 };
-
 export default function ModalBooking({ booking, isOpen, onClose }) {
-  const packageDetails = schedulePackages.find(
-    (pkg) => pkg.title === booking.paket
-  );
+  const pkg = schedulePackages.find((p) => p.title === booking.paket);
 
   return (
     <AnimatePresence>
       {isOpen && (
-        // Wrapper ini berfungsi sebagai overlay/backdrop
-        // Klik di sini akan menutup modal
         <motion.div
-          className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm z-50 flex items-center justify-center p-1"
+          className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
           onClick={onClose}
-          role="dialog"
-          aria-modal="true"
         >
           <motion.div
-            className="w-full max-w-lg bg-white rounded-2xl p-6 shadow-xl"
-            initial={{ scale: 0.95 }}
+            className="w-full max-w-xl bg-white rounded-2xl shadow-2xl overflow-hidden"
+            initial={{ scale: 0.9 }}
             animate={{ scale: 1 }}
-            exit={{ scale: 0.95 }}
+            exit={{ scale: 0.9 }}
             transition={{ duration: 0.2 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-start mb-4 border-b pb-3">
-              <h3 className="text-lg font-semibold text-gray-800">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b">
+              <h2 className="text-xl font-medium text-gray-600">
                 Detail Booking
-              </h3>
+              </h2>
               <button
                 onClick={onClose}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 transition"
+                aria-label="Close"
               >
-                <X className="w-5 h-5" />
+                <X size={24} />
               </button>
             </div>
 
-            <div className="space-y-4">
-              {/* Informasi Pemesan */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="font-medium text-gray-500">Nama</p>
-                  <p className="text-gray-800">{booking.nama}</p>
+            {/* Body */}
+            <div className="px-6 py-5 space-y-6">
+              {/* Meta Info */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-gray-50 p-4 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <span className="px-2 py-1 bg-sky-100 text-sky-700 rounded-full font-mono">
+                    FOTO-{booking.id.toString().padStart(5, "0")}
+                  </span>
+                  <span className="text-sm text-gray-500">
+                    Dibuat: {formatCreationDate(booking.createdAt)}
+                  </span>
                 </div>
                 <div>
-                  <p className="font-medium text-gray-500">Kontak</p>
-                  <p className="text-gray-800">{booking.telepon}</p>
-                </div>
-                <div>
-                  <p className="font-medium text-gray-500">Jadwal Sesi</p>
-                  <p className="text-gray-800">{formatDate(booking.tanggal)}</p>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <p className="font-medium text-gray-500">Status:</p>
-                  <StatusBadge status={booking.status} />
+                  <span className="px-3 py-1 text-xs font-medium bg-yellow-100 text-yellow-700 rounded-full">
+                    {booking.status}
+                  </span>
                 </div>
               </div>
 
-              {/* Detail Paket */}
-              {packageDetails && (
-                <div className="bg-sky-50 border border-sky-100 p-4 rounded-lg">
-                  <div className="flex items-center mb-3">
-                    <Package className="w-5 h-5 text-sky-600 mr-2" />
-                    <h4 className="font-semibold text-sky-800">
-                      {packageDetails.title}
-                    </h4>
-                    <p className="ml-auto font-bold text-sky-600">
-                      {packageDetails.price}
-                    </p>
+              {/* Customer & Schedule Details */}
+              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                <div>
+                  <dt className="flex items-center text-gray-500 text-sm font-medium">
+                    <User className="w-4 h-4 mr-1" /> Nama
+                  </dt>
+                  <dd className="mt-1 text-gray-800">{booking.nama}</dd>
+                </div>
+                <div>
+                  <dt className="flex items-center text-gray-500 text-sm font-medium">
+                    <Phone className="w-4 h-4 mr-1" /> Kontak
+                  </dt>
+                  <dd className="mt-1 text-gray-800">{booking.telepon}</dd>
+                </div>
+                <div>
+                  <dt className="flex items-center text-gray-500 text-sm font-medium">
+                    <CalendarClock className="w-4 h-4 mr-1" /> Jadwal Sesi
+                  </dt>
+                  <dd className="mt-1 text-gray-800">
+                    {formatSessionDate(booking.tanggal)}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-gray-500 text-sm font-medium">Paket</dt>
+                  <dd className="mt-1 text-gray-800">{booking.paket}</dd>
+                </div>
+              </dl>
+
+              {/* Package Details */}
+              {pkg && (
+                <div className="border border-sky-200 p-4 rounded-lg bg-sky-50">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-2">
+                      <Package className="w-5 h-5 text-sky-600" />
+                      <h3 className="text-lg font-semibold text-sky-800">
+                        {pkg.title}
+                      </h3>
+                    </div>
+                    <span className="text-xl font-bold text-sky-600">
+                      {pkg.price}
+                    </span>
                   </div>
-                  <ul className="list-disc list-inside text-xs text-sky-700 space-y-1 pl-2">
-                    {packageDetails.features.map((feature, i) => (
-                      <li key={i}>{feature}</li>
+                  <ul className="list-disc list-inside text-sky-700 space-y-1 pl-4 text-sm">
+                    {pkg.features.map((f, idx) => (
+                      <li key={idx}>{f}</li>
                     ))}
                   </ul>
                 </div>
               )}
 
-              {/* Catatan/Deskripsi */}
+              {/* Notes */}
               {booking.catatan && (
-                <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg">
-                  <div className="flex items-center mb-2">
-                    <FileText className="w-5 h-5 text-gray-600 mr-2" />
-                    <h4 className="font-semibold text-gray-800">
-                      Catatan dari Pemesan
-                    </h4>
+                <div className="border border-gray-200 p-4 rounded-lg bg-gray-50">
+                  <div className="flex items-center mb-2 text-gray-700">
+                    <FileText className="w-5 h-5 mr-2" />
+                    <h4 className="font-semibold">Catatan Pemesan</h4>
                   </div>
-                  <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                  <p className="text-gray-800 text-sm whitespace-pre-wrap">
                     {booking.catatan}
                   </p>
                 </div>
