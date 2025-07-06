@@ -19,6 +19,7 @@ export default function KelolaGaleri() {
   const [visibleCount, setVisibleCount] = useState(10);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
@@ -88,13 +89,17 @@ export default function KelolaGaleri() {
     });
     if (!confirmed) return;
 
+    setIsDeleting(true);
+
     try {
       const encodedFilename = encodeURIComponent(filename);
       const res = await fetch(`/api/gallery/${encodedFilename}`, {
         method: "DELETE",
       });
 
-      if (!res.ok) throw new Error((await res.json()).message);
+      if (!res.ok) {
+        throw new Error((await res.json()).message);
+      }
 
       mutate("/api/gallery");
 
@@ -111,6 +116,8 @@ export default function KelolaGaleri() {
         icon: "error",
         showCancel: false,
       });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -160,6 +167,11 @@ export default function KelolaGaleri() {
       initial="hidden"
       animate="visible"
     >
+      {isDeleting && (
+        <div className="fixed inset-0 bg-white flex items-center justify-center z-50">
+          <DotLoader text="Menghapus gambar..." />
+        </div>
+      )}
       <style jsx global>{`
         .no-scrollbar::-webkit-scrollbar {
           display: none;

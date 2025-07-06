@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft, Loader2 } from "lucide-react";
+import useSWR from "swr"; // Impor useSWR
 import { schedulePackages } from "@/data/packages";
 import BookingCalendar from "@/components/BookingCalendar";
 import PackageNotFound from "@/layout/user/booking/PackageNotFound";
@@ -26,10 +27,16 @@ const formatPhoneNumber = (value) => {
   return numbers;
 };
 
+// Tambahkan fetcher untuk SWR
+const fetcher = (url) => fetch(url).then((res) => res.json());
+
 export default function FormBooking() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const paketQuery = searchParams.get("paket");
+
+  // Ambil semua data booking menggunakan SWR
+  const { data: bookings } = useSWR("/api/bookings/all", fetcher);
 
   const selectedPackage = schedulePackages.find(
     (pkg) => pkg.query === paketQuery
@@ -147,6 +154,11 @@ export default function FormBooking() {
   const { title, features, price } = selectedPackage;
   const isPhoneInvalid = errors.phone || errors.phoneFormat;
 
+  // Proses data booking menjadi array of ISO strings
+  const bookedDates = bookings
+    ? bookings.map((booking) => new Date(booking.tanggal).toISOString())
+    : [];
+
   return (
     <div className="min-h-screen p-0 md:p-12">
       <motion.div
@@ -244,7 +256,10 @@ export default function FormBooking() {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Tanggal & Waktu Pilihan
             </label>
-            <BookingCalendar onDateTimeChange={handleDateTimeChange} />
+            <BookingCalendar
+              onDateTimeChange={handleDateTimeChange}
+              bookedDates={bookedDates}
+            />
             {errors.date && (
               <p className="text-red-500 text-xs mt-1">{errors.date}</p>
             )}

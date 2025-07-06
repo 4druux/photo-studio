@@ -25,7 +25,10 @@ const timeSlots = [
   "21:30",
 ];
 
-export default function BookingCalendar({ onDateTimeChange }) {
+export default function BookingCalendar({
+  onDateTimeChange,
+  bookedDates = [],
+}) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState(null);
@@ -46,7 +49,8 @@ export default function BookingCalendar({ onDateTimeChange }) {
     if (newSelectedDate < today) return;
 
     setSelectedDate(newSelectedDate);
-    onDateTimeChange({ date: newSelectedDate, time: selectedTime });
+    setSelectedTime(null);
+    onDateTimeChange({ date: newSelectedDate, time: null });
   };
 
   const handleTimeClick = (time) => {
@@ -70,11 +74,14 @@ export default function BookingCalendar({ onDateTimeChange }) {
 
   return (
     <div className="w-full">
-      {/* Header Kalender */}
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={() => changeMonth(-1)}
           className="p-2 rounded-full hover:bg-gray-100"
+          disabled={
+            currentDate.getFullYear() === today.getFullYear() &&
+            currentDate.getMonth() === today.getMonth()
+          }
         >
           <ChevronLeft size={20} />
         </button>
@@ -89,7 +96,6 @@ export default function BookingCalendar({ onDateTimeChange }) {
         </button>
       </div>
 
-      {/* Grid Hari */}
       <div className="grid grid-cols-7 gap-1 text-center text-sm">
         {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
           <div key={day} className="font-medium text-gray-400 pb-2">
@@ -127,22 +133,35 @@ export default function BookingCalendar({ onDateTimeChange }) {
         })}
       </div>
 
-      {/* Pemilihan Waktu */}
       <div className="mt-4">
         <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
-          {timeSlots.map((time) => (
-            <button
-              key={time}
-              onClick={() => handleTimeClick(time)}
-              className={`p-2 border rounded-lg text-center font-medium transition-colors ${
-                selectedTime === time
-                  ? "bg-teal-500 text-white border-teal-500"
-                  : "border-gray-300 text-gray-600 hover:bg-teal-50"
-              }`}
-            >
-              {time}
-            </button>
-          ))}
+          {timeSlots.map((time) => {
+            const [hour, minute] = time.split(":").map(Number);
+            const slotDateTime = new Date(selectedDate);
+            slotDateTime.setHours(hour, minute, 0, 0);
+
+            const isPast = slotDateTime < new Date();
+            const isBooked = bookedDates.some(
+              (booked) => new Date(booked).getTime() === slotDateTime.getTime()
+            );
+
+            return (
+              <button
+                key={time}
+                onClick={() => handleTimeClick(time)}
+                disabled={isPast || isBooked}
+                className={`p-2 border rounded-lg text-center font-medium transition-colors ${
+                  selectedTime === time
+                    ? "bg-teal-500 text-white border-teal-500"
+                    : isPast || isBooked
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "border-gray-300 text-gray-600 hover:bg-teal-50"
+                }`}
+              >
+                {time}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

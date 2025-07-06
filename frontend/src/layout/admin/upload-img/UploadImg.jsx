@@ -19,8 +19,12 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { containerVariants, itemVariants } from "@/utils/animations";
+import DotLoader from "@/components/loading/dotloader";
 
-const resizeImage = (file, maxSizeInMB = 5) => {
+const resizeImage = (file) => {
+  const MAX_DIMENSION = 1920;
+  const QUALITY = 0.8;
+
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -30,7 +34,6 @@ const resizeImage = (file, maxSizeInMB = 5) => {
         const ctx = canvas.getContext("2d");
 
         let { width, height } = img;
-        const MAX_DIMENSION = 1920;
 
         if (width > height) {
           if (width > MAX_DIMENSION) {
@@ -49,24 +52,15 @@ const resizeImage = (file, maxSizeInMB = 5) => {
 
         canvas.toBlob(
           (blob) => {
-            if (blob.size / 1024 / 1024 > maxSizeInMB) {
-              canvas.toBlob(
-                (compressedBlob) => {
-                  resolve(
-                    new File([compressedBlob], file.name, {
-                      type: "image/jpeg",
-                    })
-                  );
-                },
-                "image/jpeg",
-                0.7
-              );
-            } else {
-              resolve(new File([blob], file.name, { type: "image/jpeg" }));
-            }
+            resolve(
+              new File([blob], file.name, {
+                type: "image/jpeg",
+                lastModified: Date.now(),
+              })
+            );
           },
           "image/jpeg",
-          0.9
+          QUALITY
         );
       };
       img.src = event.target.result;
@@ -106,13 +100,27 @@ function centerAspectCrop(mediaWidth, mediaHeight, aspect) {
   );
 }
 
-const CroppedGallery = ({ croppedImages, onEdit, onUpload, isUploading }) => (
+const CroppedGallery = ({
+  croppedImages,
+  onEdit,
+  onUpload,
+  isUploading,
+  uploadProgress,
+}) => (
   <motion.div
     className="w-full max-w-4xl mx-auto p-4 lg:p-0"
     variants={containerVariants}
     initial="hidden"
     animate="visible"
   >
+    {isUploading && (
+      <div className="fixed inset-0 bg-white flex items-center justify-center z-50">
+        <DotLoader
+          text={`Mengunggah ${uploadProgress.current} dari ${uploadProgress.total} gambar...`}
+        />
+      </div>
+    )}
+
     <motion.div
       className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200"
       variants={itemVariants}
@@ -146,15 +154,15 @@ const CroppedGallery = ({ croppedImages, onEdit, onUpload, isUploading }) => (
       <div className="flex justify-end items-center mt-8 lg:mt-12 gap-4">
         <button
           onClick={onEdit}
-          className="px-6 py-3 border border-teal-500 text-teal-500 text-sm font-semibold rounded-full hover:bg-teal-600 hover:text-white transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+          disabled={isUploading}
+          className="px-6 py-3 border border-teal-500 text-teal-500 text-sm font-semibold rounded-full hover:bg-teal-600 hover:text-white transition-colors disabled:opacity-50"
         >
           Edit lagi
         </button>
         <button
           onClick={onUpload}
           disabled={isUploading}
-          className="px-6 py-3 bg-gradient-to-br from-teal-200 via-teal-700 to-teal-400 text-white text-sm font-semibold 
-          rounded-full hover:bg-none hover:bg-teal-600 disabled:bg-none disabled:bg-gray-300 disabled:cursor-not-allowed"
+          className="px-6 py-3 bg-gradient-to-br from-teal-200 via-teal-700 to-teal-400 text-white text-sm font-semibold rounded-full hover:bg-none hover:bg-teal-600 disabled:opacity-50"
         >
           {isUploading ? "Mengunggah..." : "Upload"}
         </button>
@@ -171,7 +179,12 @@ export default function UploadImg() {
   const [imageQueue, setImageQueue] = useState([]);
   const [croppedImages, setCroppedImages] = useState([]);
   const [activeIndex, setActiveIndex] = useState(-1);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({
+    current: 0,
+    total: 0,
+  });
 
   const previewCanvasRef = useRef(null);
   const imgRef = useRef(null);
@@ -180,9 +193,11 @@ export default function UploadImg() {
   const onDrop = useCallback(
     async (acceptedFiles) => {
       if (acceptedFiles?.length) {
+        setIsProcessing(true);
         const resizedFiles = await Promise.all(
           acceptedFiles.map((file) => resizeImage(file))
         );
+        setIsProcessing(false);
 
         const newImages = resizedFiles.map((file) => ({
           original: URL.createObjectURL(file),
@@ -310,8 +325,16 @@ export default function UploadImg() {
       return;
     }
     setIsUploading(true);
-    const formData = new FormData();
-    croppedImages.forEach((image) => {
+    setUploadProgress({ current: 0, total: croppedImages.length });
+
+    const totalImages = croppedImages.length;
+    const successfulUploads = [];
+    const failedUploads = [];
+
+    for (let i = 0; i < totalImages; i++) {
+      const image = croppedImages[i];
+      setUploadProgress({ current: i + 1, total: totalImages });
+      const formData = new FormData();
       const file = dataURLtoFile(image.src, image.name);
       formData.append("images", file);
       formData.append(
@@ -322,26 +345,35 @@ export default function UploadImg() {
           height: image.height,
         })
       );
-    });
-    try {
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Gagal meng-upload gambar.");
+
+      try {
+        const response = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Gagal mengunggah ${image.name}`);
+        }
+        successfulUploads.push(image.name);
+      } catch (error) {
+        failedUploads.push(image.name);
+        console.error(`Error saat upload ${image.name}:`, error);
       }
-      const result = await response.json();
-      toast.success(result.message || "Semua gambar berhasil di-upload!", {
+    }
+
+    setIsUploading(false);
+
+    if (failedUploads.length > 0) {
+      toast.error(
+        `${failedUploads.length} gambar gagal diunggah. Lihat konsol untuk detail.`
+      );
+    }
+    if (successfulUploads.length > 0) {
+      toast.success(`${successfulUploads.length} gambar berhasil di-upload!`, {
         className: "custom-toast",
       });
       router.push("/admin/kelola-galeri");
-    } catch (error) {
-      console.error("Error saat upload:", error);
-      toast.error(`Terjadi kesalahan: ${error.message}`);
-    } finally {
-      setIsUploading(false);
     }
   }
 
@@ -381,6 +413,14 @@ export default function UploadImg() {
     noClick: false,
   });
 
+  if (isProcessing) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center">
+        <DotLoader text="Memproses gambar..." />
+      </div>
+    );
+  }
+
   if (activeIndex === -1 && croppedImages.length > 0 && imageQueue.length > 0) {
     return (
       <CroppedGallery
@@ -388,6 +428,7 @@ export default function UploadImg() {
         onEdit={() => setActiveIndex(0)}
         onUpload={handleUploadAll}
         isUploading={isUploading}
+        uploadProgress={uploadProgress}
       />
     );
   }
