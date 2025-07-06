@@ -66,11 +66,11 @@ export default function ButtonAnimation({
         className="absolute inset-0 flex items-center justify-center transition-opacity duration-300"
         style={{ opacity: isHovered ? 0 : 1 }}
       >
-        <span className="text-sky-500 text-sm font-semibold">{label}</span>
+        <span className="text-teal-500 text-sm font-semibold">{label}</span>
       </div>
 
       <div
-        className="absolute inset-0 bg-gradient-to-br from-sky-200 via-sky-500 to-blue-500 z-10 flex items-center justify-center cursor-pointer"
+        className="absolute inset-0 bg-gradient-to-br from-teal-200 via-teal-700 to-teal-400 z-10 flex items-center justify-center cursor-pointer"
         style={{
           opacity: isHovered ? 1 : 0,
           transition: `opacity ${overlayFadeDuration}ms ease-in-out`,

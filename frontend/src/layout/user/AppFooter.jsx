@@ -61,21 +61,21 @@ const AppFooter = () => {
             <Link
               href="#about"
               onClick={scrollToTop}
-              className="hover:text-sky-600 cursor-pointer text-base underline"
+              className="hover:text-teal-600 cursor-pointer text-base underline"
             >
               <li>About</li>
             </Link>
             <Link
               href="#gallery"
               onClick={scrollToTop}
-              className="hover:text-sky-600 cursor-pointer text-base underline"
+              className="hover:text-teal-600 cursor-pointer text-base underline"
             >
               <li>Gallery</li>
             </Link>
             <Link
               href="#schedule"
               onClick={scrollToTop}
-              className="hover:text-sky-600 cursor-pointer text-base underline"
+              className="hover:text-teal-600 cursor-pointer text-base underline"
             >
               <li>Schedule</li>
             </Link>
@@ -87,7 +87,7 @@ const AppFooter = () => {
             Hubungi Kami
           </p>
           <ul className="flex flex-col gap-2 text-gray-600">
-            <li className="hover:text-sky-600 cursor-pointer text-base underline">
+            <li className="hover:text-teal-600 cursor-pointer text-base underline">
               <a
                 href="https://api.whatsapp.com/send/?phone=%2B62895332188227&text&type=phone_number&app_absent=0"
                 target="_blank"
@@ -95,7 +95,7 @@ const AppFooter = () => {
                 +62895-3321-88227
               </a>
             </li>
-            <li className="hover:text-sky-600 cursor-pointer text-base underline">
+            <li className="hover:text-teal-600 cursor-pointer text-base underline">
               <a href="" target="_blank">
                 fotoStudio@gmail.com
               </a>

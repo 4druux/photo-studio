@@ -173,7 +173,7 @@ export default function Gallery() {
                 onClick={() => handleCategoryClick(category, idx)}
                 className={`px-5 py-2 text-sm font-semibold rounded-full shrink-0 transition-all duration-300 ${
                   selectedCategory === category
-                    ? "bg-sky-500 text-white shadow-md"
+                    ? "bg-teal-500 text-white shadow-md"
                     : "bg-white text-gray-600 hover:bg-gray-100 shadow-sm"
                 }`}
               >
@@ -229,7 +229,7 @@ export default function Gallery() {
           <div className="text-center mt-8">
             <button
               onClick={() => setVisibleCount((prev) => prev + 10)}
-              className="px-6 py-3 bg-gradient-to-br from-sky-400 via-sky-500 to-blue-500 text-white text-sm font-semibold rounded-full hover:bg-none hover:bg-sky-500"
+              className="px-6 py-3 bg-gradient-to-br from-teal-400 via-teal-700 to-teal-600 text-white text-sm font-semibold rounded-full hover:bg-none hover:bg-teal-600"
             >
               Muat Lebih Banyak
             </button>

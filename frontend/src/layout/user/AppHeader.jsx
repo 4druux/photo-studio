@@ -68,13 +68,13 @@ function AppHeader() {
     `relative text-md font-semibold text-gray-500 transition-colors duration-300 group`;
 
   const navLinkSpanClass = (path) =>
-    `absolute bottom-[-6px] left-1/2 -translate-x-1/2 h-0.5 bg-sky-600 transition-all duration-300 ease-out ${
+    `absolute bottom-[-6px] left-1/2 -translate-x-1/2 h-0.5 bg-teal-600 transition-all duration-300 ease-out ${
       `#${activeSection}` === path ? "w-1/2" : "w-0 group-hover:w-full"
     }`;
 
   const mobileNavLinkClass = (path) =>
     `block py-3 px-4 text-lg font-medium rounded-xl transition-colors ${
-      `#${activeSection}` === path ? "bg-sky-100 text-sky-600" : "text-gray-500"
+      `#${activeSection}` === path ? "bg-teal-100 text-teal-600" : "text-gray-500"
     }`;
 
   const overlayVariants = { visible: { opacity: 1 }, hidden: { opacity: 0 } };
@@ -120,7 +120,7 @@ function AppHeader() {
                 >
                   <span
                     className={
-                      `#${activeSection}` === link.href ? "text-sky-600" : ""
+                      `#${activeSection}` === link.href ? "text-teal-600" : ""
                     }
                   >
                     {link.label}

@@ -84,7 +84,7 @@ export default function ModalBooking({ booking, isOpen, onClose }) {
             <div className="flex-grow px-6 py-5 space-y-6 overflow-y-auto">
               <div className="bg-gray-50 p-4 rounded-lg space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="px-2 py-1 bg-sky-100 text-sky-700 rounded-full font-mono text-sm">
+                  <span className="px-2 py-1 bg-teal-100 text-teal-700 rounded-full font-mono text-sm">
                     FOTO-{booking.id.toString().padStart(5, "0")}
                   </span>
                   <StatusBadge status={booking.status} />
@@ -128,19 +128,19 @@ export default function ModalBooking({ booking, isOpen, onClose }) {
               </dl>
 
               {pkg && (
-                <div className="border border-sky-200 p-4 rounded-lg bg-sky-50">
+                <div className="border border-teal-200 p-4 rounded-lg bg-teal-50">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center space-x-2">
-                      <Package className="w-5 h-5 text-sky-600" />
-                      <h3 className="text-base md:text-lg font-medium text-sky-700">
+                      <Package className="w-5 h-5 text-teal-600" />
+                      <h3 className="text-base md:text-lg font-medium text-teal-700">
                         {pkg.title}
                       </h3>
                     </div>
-                    <span className="text-base md:text-lg font-semibold text-sky-600">
+                    <span className="text-base md:text-lg font-semibold text-teal-600">
                       {pkg.price}
                     </span>
                   </div>
-                  <ul className="list-disc list-inside text-sky-700 space-y-1 pl-4 text-sm md:text-base">
+                  <ul className="list-disc list-inside text-teal-700 space-y-1 pl-4 text-sm md:text-base">
                     {pkg.features.map((f, idx) => (
                       <li key={idx}>{f}</li>
                     ))}

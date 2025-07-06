@@ -25,19 +25,19 @@ const SweetAlert = ({ title, message, icon, showCancel = true }) => {
           cancelButton: showCancel
             ? [
                 "px-6 py-3",
-                "border border-sky-500",
-                "text-sky-500 text-sm font-semibold",
+                "border border-teal-500",
+                "text-teal-500 text-sm font-semibold",
                 "rounded-full",
-                "hover:bg-sky-500 hover:text-white transition-colors",
+                "hover:bg-teal-500 hover:text-white transition-colors",
                 "disabled:bg-gray-300 disabled:cursor-not-allowed",
               ].join(" ")
             : null,
           confirmButton: [
             "px-6 py-3",
-            "bg-gradient-to-br from-sky-400 via-sky-500 to-blue-500",
+            "bg-gradient-to-br from-teal-200 via-teal-700 to-teal-400",
             "text-white text-sm font-semibold",
             "rounded-full",
-            "hover:bg-none hover:bg-sky-500",
+            "hover:bg-none hover:bg-teal-500",
             "disabled:bg-none disabled:bg-gray-300 disabled:cursor-not-allowed",
           ].join(" "),
         },

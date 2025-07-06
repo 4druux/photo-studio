@@ -204,7 +204,7 @@ export default function KelolaGaleri() {
                 onClick={() => handleCategoryClick(category, idx)}
                 className={`px-4 py-1.5 text-sm font-semibold rounded-full shrink-0 transition-all duration-300 ${
                   selectedCategory === category
-                    ? "bg-sky-500 text-white shadow-md"
+                    ? "bg-teal-500 text-white shadow-md"
                     : "bg-white text-gray-600 hover:bg-gray-100 shadow-sm"
                 }`}
               >
@@ -280,7 +280,7 @@ export default function KelolaGaleri() {
               <div className="text-center mt-8">
                 <button
                   onClick={() => setVisibleCount((prev) => prev + 10)}
-                  className="px-6 py-3 bg-sky-500 text-white rounded-full hover:bg-sky-600 transition"
+                  className="px-6 py-3 bg-teal-500 text-white rounded-full hover:bg-teal-600 transition"
                 >
                   Muat Lebih Banyak
                 </button>

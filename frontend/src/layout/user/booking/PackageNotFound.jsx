@@ -16,7 +16,7 @@ export default function PackageNotFound() {
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="text-6xl font-extrabold text-sky-500"
+          className="text-6xl font-extrabold text-teal-500"
         >
           404
         </motion.h1>

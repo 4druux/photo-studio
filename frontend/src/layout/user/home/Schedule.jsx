@@ -46,13 +46,13 @@ export default function Schedule() {
                 whileHover={{ y: -2, scale: 1.01 }}
                 transition={{ type: "spring", stiffness: 300 }}
               >
-                <div className="mx-auto bg-sky-100 text-sky-500 p-4 rounded-full mb-4">
+                <div className="mx-auto bg-teal-100 text-teal-500 p-4 rounded-full mb-4">
                   <Icon className="w-8 h-8" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-700 mb-2">
                   {pkg.title}
                 </h3>
-                <p className="text-3xl font-semibold text-sky-500 mb-4">
+                <p className="text-3xl font-semibold text-teal-500 mb-4">
                   {pkg.price}
                 </p>
 

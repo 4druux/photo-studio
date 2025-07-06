@@ -26,8 +26,8 @@ const NavLink = ({ item, expanded, onClick }) => {
         transition-colors group w-full
         ${
           isActive
-            ? "bg-gradient-to-tr from-sky-200 to-sky-100 text-sky-600"
-            : "text-gray-600 hover:bg-sky-50"
+            ? "bg-gradient-to-tr from-teal-200 to-teal-100 text-teal-700"
+            : "text-gray-600 hover:bg-teal-50"
         }
         ${expanded ? "p-3" : "p-3"}`}
     >
@@ -43,7 +43,7 @@ const NavLink = ({ item, expanded, onClick }) => {
         <div
           className={`
           absolute left-full rounded-md px-2 py-1 ml-6
-          bg-sky-100 text-sky-600 text-xs
+          bg-teal-50 text-teal-600 text-xs
           invisible opacity-20 -translate-x-3 transition-all
           group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
         `}

@@ -22,7 +22,7 @@ const ErrorMessage = ({ message, onRetry }) => (
     <p className="text-red-500 mb-4">{message}</p>
     <button
       onClick={onRetry}
-      className="bg-sky-500 text-white px-4 py-2 rounded-lg hover:bg-sky-600"
+      className="bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600"
     >
       Coba Lagi
     </button>
@@ -162,7 +162,7 @@ export default function Booking() {
             Detail Sesi Foto
           </h2>
           <div className="flex items-center">
-            <Calendar className="w-5 h-5 text-sky-500 mr-3 shrink-0" />
+            <Calendar className="w-5 h-5 text-teal-500 mr-3 shrink-0" />
             <div>
               <p className="text-xs text-gray-500">Tanggal Booking</p>
               <p className="font-medium text-gray-700">
@@ -171,7 +171,7 @@ export default function Booking() {
             </div>
           </div>
           <div className="flex items-center">
-            <Clock className="w-5 h-5 text-sky-500 mr-3 shrink-0" />
+            <Clock className="w-5 h-5 text-teal-500 mr-3 shrink-0" />
             <div>
               <p className="text-xs text-gray-500">Sesi Waktu</p>
               <p className="font-medium text-gray-700">
@@ -180,12 +180,12 @@ export default function Booking() {
             </div>
           </div>
           <div className="flex items-start">
-            <Package className="w-5 h-5 text-sky-500 mr-3 shrink-0 mt-1" />
+            <Package className="w-5 h-5 text-teal-500 mr-3 shrink-0 mt-1" />
             <div>
               <div className="flex items-baseline">
                 <p className="font-medium text-gray-700">{booking.paket} - </p>
                 {selectedPackageDetails && (
-                  <p className="ml-1 text-lg font-semibold text-sky-500">
+                  <p className="ml-1 text-lg font-semibold text-teal-500">
                     {selectedPackageDetails.price}
                   </p>
                 )}
@@ -207,18 +207,18 @@ export default function Booking() {
         />
 
         <motion.div
-          className="bg-sky-50 border-l-4 border-sky-400 p-4 rounded-lg"
+          className="bg-teal-50 border-l-4 border-teal-400 p-4 rounded-lg"
           variants={itemVariants}
         >
           <div className="flex">
             <div className="py-1">
-              <AlertTriangle className="h-5 w-5 text-sky-500 mr-3" />
+              <AlertTriangle className="h-5 w-5 text-teal-500 mr-3" />
             </div>
             <div>
-              <p className="font-semibold text-sky-600">
+              <p className="font-semibold text-teal-600">
                 Lakukan Pembayaran DP
               </p>
-              <p className="text-sm text-sky-600 mt-1">
+              <p className="text-sm text-teal-600 mt-1">
                 Silakan transfer DP <strong>50%</strong> ke{" "}
                 <span className="font-medium">
                   Bank BCA{" "}
@@ -256,7 +256,7 @@ export default function Booking() {
             label="Kembali"
             hoverLabel="Kembali"
             href="/"
-            className="border border-sky-500"
+            className="border border-teal-500"
           />
           <ButtonTextFlip
             label="Konfirm Admin"

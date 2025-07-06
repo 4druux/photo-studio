@@ -147,7 +147,7 @@ export default function Booking() {
                 <motion.tr
                   key={booking.publicId}
                   onClick={() => openModal(booking)}
-                  className="even:bg-gray-50 odd:bg-white hover:bg-sky-50 hover:cursor-pointer"
+                  className="even:bg-gray-50 odd:bg-white hover:bg-teal-50 hover:cursor-pointer"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
@@ -174,7 +174,7 @@ export default function Booking() {
                       onChange={(e) =>
                         handleStatusChange(booking.publicId, e.target.value)
                       }
-                      className="bg-gray-50 border border-gray-300 text-gray-800 text-sm rounded-full focus:ring-sky-500 focus:border-sky-500 block w-full p-2"
+                      className="bg-gray-50 border border-gray-300 text-gray-800 text-sm rounded-full focus:ring-teal-500 focus:border-teal-500 block w-full p-2"
                     >
                       <option value="PENDING">Pending</option>
                       <option value="CONFIRMED">Confirmed</option>
@@ -257,7 +257,7 @@ export default function Booking() {
                     onChange={(e) =>
                       handleStatusChange(booking.publicId, e.target.value)
                     }
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-full focus:ring-sky-500 focus:border-sky-500 block w-full p-2"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-full focus:ring-teal-500 focus:border-teal-500 block w-full p-2"
                   >
                     <option value="PENDING">Pending</option>
                     <option value="CONFIRMED">Confirmed</option>

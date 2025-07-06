@@ -115,7 +115,7 @@ export default function BookingCalendar({ onDateTimeChange }) {
               disabled={isPastDate}
               className={`w-10 h-10 rounded-full transition-colors ${
                 isSelected
-                  ? "bg-sky-500 text-white font-semibold"
+                  ? "bg-teal-500 text-white font-semibold"
                   : isPastDate
                   ? "text-gray-300 cursor-not-allowed"
                   : "text-gray-700 hover:bg-gray-100"
@@ -136,8 +136,8 @@ export default function BookingCalendar({ onDateTimeChange }) {
               onClick={() => handleTimeClick(time)}
               className={`p-2 border rounded-lg text-center font-medium transition-colors ${
                 selectedTime === time
-                  ? "bg-sky-500 text-white border-sky-500"
-                  : "border-gray-300 text-gray-600 hover:bg-sky-50"
+                  ? "bg-teal-500 text-white border-teal-500"
+                  : "border-gray-300 text-gray-600 hover:bg-teal-50"
               }`}
             >
               {time}

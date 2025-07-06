@@ -169,12 +169,12 @@ export default function FormBooking() {
           </p>
         </motion.div>
         <motion.div
-          className="bg-sky-50 border border-sky-200 p-4 rounded-xl mb-4 space-y-3"
+          className="bg-teal-50 border border-teal-200 p-4 rounded-xl mb-4 space-y-3"
           variants={itemVariants}
         >
-          <h3 className="text-xl font-semibold text-sky-800">{title}</h3>
-          <p className="text-2xl font-bold text-sky-600">{price}</p>
-          <ul className="text-sky-700 text-sm space-y-2 pt-2">
+          <h3 className="text-xl font-semibold text-teal-800">{title}</h3>
+          <p className="text-2xl font-bold text-teal-600">{price}</p>
+          <ul className="text-teal-700 text-sm space-y-2 pt-2">
             {features.map((feature, i) => (
               <li key={i} className="flex items-center">
                 <span className="text-green-500 mr-2">&#10003;</span>
@@ -199,7 +199,7 @@ export default function FormBooking() {
               id="name"
               value={formData.name}
               onChange={handleInputChange}
-              className={`block w-full border shadow-sm py-2 px-3 rounded-lg focus:outline-none focus:ring-sky-500 focus:border-sky-500 ${
+              className={`block w-full border shadow-sm py-2 px-3 rounded-lg focus:outline-none focus:ring-teal-500 focus:border-teal-500 ${
                 errors.name ? "border-red-500" : "border-gray-300"
               }`}
             />
@@ -228,7 +228,7 @@ export default function FormBooking() {
                 value={formattedPhone}
                 onChange={handleInputChange}
                 placeholder="812-3456-7890"
-                className={`block w-full border shadow-sm py-2 px-3 rounded-r-lg focus:outline-none focus:ring-sky-500 focus:border-sky-500 ${
+                className={`block w-full border shadow-sm py-2 px-3 rounded-r-lg focus:outline-none focus:ring-teal-500 focus:border-teal-500 ${
                   isPhoneInvalid ? "border-red-500" : "border-gray-300"
                 }`}
               />
@@ -261,7 +261,7 @@ export default function FormBooking() {
               value={formData.description}
               onChange={handleInputChange}
               rows={3}
-              className="block w-full border border-gray-300 shadow-sm py-2 px-3 rounded-lg min-h-[100px] focus:outline-none `focus:ring-sky-500 focus:border-sky-500 placeholder:text-gray-400 placeholder:text-sm`"
+              className="block w-full border border-gray-300 shadow-sm py-2 px-3 rounded-lg min-h-[100px] focus:outline-none `focus:ring-teal-500 focus:border-teal-500 placeholder:text-gray-400 placeholder:text-sm`"
               placeholder="Detail tambahan tentang sesi foto Anda..."
             />
           </motion.div>
@@ -272,8 +272,8 @@ export default function FormBooking() {
             disabled={isLoading}
             className={`w-full py-3 rounded-full font-semibold text-white flex items-center justify-center ${
               isLoading
-                ? "bg-sky-400 cursor-not-allowed"
-                : "bg-gradient-to-br from-sky-200 via-sky-500 to-blue-500 hover:bg-none hover:bg-sky-500 hover:shadow-md"
+                ? "bg-teal-400 cursor-not-allowed"
+                : "bg-gradient-to-br from-teal-200 via-teal-700 to-teal-400 hover:bg-none hover:bg-teal-600 hover:shadow-md"
             }`}
             variants={itemVariants}
           >

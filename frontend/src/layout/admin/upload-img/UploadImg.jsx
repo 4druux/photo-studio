@@ -30,7 +30,7 @@ const resizeImage = (file, maxSizeInMB = 5) => {
         const ctx = canvas.getContext("2d");
 
         let { width, height } = img;
-        const MAX_DIMENSION = 1920; 
+        const MAX_DIMENSION = 1920;
 
         if (width > height) {
           if (width > MAX_DIMENSION) {
@@ -146,15 +146,15 @@ const CroppedGallery = ({ croppedImages, onEdit, onUpload, isUploading }) => (
       <div className="flex justify-end items-center mt-8 lg:mt-12 gap-4">
         <button
           onClick={onEdit}
-          className="px-6 py-3 border border-sky-500 text-sky-500 text-sm font-semibold rounded-full hover:bg-sky-500 hover:text-white transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+          className="px-6 py-3 border border-teal-500 text-teal-500 text-sm font-semibold rounded-full hover:bg-teal-600 hover:text-white transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
           Edit lagi
         </button>
         <button
           onClick={onUpload}
           disabled={isUploading}
-          className="px-6 py-3 bg-gradient-to-br from-sky-400 via-sky-500 to-blue-500 text-white text-sm font-semibold 
-          rounded-full hover:bg-none hover:bg-sky-500 disabled:bg-none disabled:bg-gray-300 disabled:cursor-not-allowed"
+          className="px-6 py-3 bg-gradient-to-br from-teal-200 via-teal-700 to-teal-400 text-white text-sm font-semibold 
+          rounded-full hover:bg-none hover:bg-teal-600 disabled:bg-none disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
           {isUploading ? "Mengunggah..." : "Upload"}
         </button>
@@ -460,7 +460,7 @@ export default function UploadImg() {
                 {...mainGetRootProps()}
                 className={`flex flex-col items-center justify-center h-full p-4 text-center text-gray-500 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
                   isMainDragActive
-                    ? "border-sky-500 bg-sky-50 text-sky-600"
+                    ? "border-teal-500 bg-teal-50 text-teal-600"
                     : "border-gray-300 bg-gray-50 hover:bg-gray-100"
                 }`}
               >
@@ -497,7 +497,7 @@ export default function UploadImg() {
                         onClick={() => handleAspectChange(r.value)}
                         className={`px-3 py-2 text-xs md:text-sm font-medium rounded-lg transition-all ${
                           aspect === r.value
-                            ? "bg-sky-500 text-white shadow"
+                            ? "bg-teal-500 text-white shadow"
                             : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                         }`}
                       >
@@ -518,7 +518,7 @@ export default function UploadImg() {
                         onClick={() => handleCategoryToggle(cat)}
                         className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
                           activeImage?.categories.includes(cat)
-                            ? "bg-sky-600 text-white"
+                            ? "bg-teal-600 text-white"
                             : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                         }`}
                       >
@@ -543,7 +543,7 @@ export default function UploadImg() {
                           onClick={() => setActiveIndex(index)}
                           className={`flex items-center p-1 rounded-lg cursor-pointer transition-colors group ${
                             index === activeIndex
-                              ? "bg-sky-100 ring-2 ring-sky-500"
+                              ? "bg-teal-100 ring-2 ring-teal-500"
                               : "hover:bg-gray-100"
                           }`}
                         >
@@ -558,7 +558,7 @@ export default function UploadImg() {
                                 className="w-full h-full object-cover rounded-md"
                               />
                             ) : (
-                              <FileImage className="w-full h-full text-gray-300 p-1" />
+                              <FileImage className="w-full h-full text-teal-600 p-1" />
                             )}
                           </div>
                           <span className="text-sm text-gray-800 truncate flex-grow">
@@ -585,7 +585,7 @@ export default function UploadImg() {
                         {...queueGetRootProps()}
                         className={`flex flex-col items-center justify-center w-full p-6 mt-2 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
                           isQueueDragActive
-                            ? "border-sky-500 bg-sky-50"
+                            ? "border-teal-500 bg-teal-50"
                             : "border-gray-300 bg-gray-50 hover:bg-gray-100"
                         }`}
                       >
@@ -613,8 +613,8 @@ export default function UploadImg() {
                   !completedCrop ||
                   activeImage.categories.length === 0
                 }
-                className="w-full py-3 bg-gradient-to-br from-sky-400 via-sky-500 to-blue-500 text-white text-sm 
-                font-semibold rounded-full hover:bg-none hover:bg-sky-500 disabled:bg-none disabled:bg-gray-300 disabled:cursor-not-allowed"
+                className="w-full py-3 bg-gradient-to-br from-teal-400 via-teal-700 to-teal-400 text-white text-sm 
+                font-semibold rounded-full hover:bg-none hover:bg-teal-600 disabled:bg-none disabled:bg-gray-300 disabled:cursor-not-allowed"
               >
                 {activeIndex === imageQueue.length - 1
                   ? "Selesai & Lihat Galeri"
