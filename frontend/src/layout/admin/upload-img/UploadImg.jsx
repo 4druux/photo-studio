@@ -11,7 +11,6 @@ import {
   UploadCloud,
   Scissors,
   Check,
-  Image as ImageIcon,
   Tags,
   FileImage,
   Trash2,
@@ -32,7 +31,6 @@ const resizeImage = (file) => {
       img.onload = () => {
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
-
         let { width, height } = img;
 
         if (width > height) {
@@ -120,7 +118,6 @@ const CroppedGallery = ({
         />
       </div>
     )}
-
     <motion.div
       className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200"
       variants={itemVariants}
@@ -192,11 +189,26 @@ export default function UploadImg() {
 
   const onDrop = useCallback(
     async (acceptedFiles) => {
-      if (acceptedFiles?.length) {
+      const MAX_FILE_SIZE = 5 * 1024 * 1024;
+      let errorShown = false;
+
+      const validFiles = acceptedFiles.filter((file) => {
+        if (file.size > MAX_FILE_SIZE) {
+          if (!errorShown) {
+            toast.error(
+              `Ukuran file "${file.name}" terlalu besar. Maksimal 5 MB.`,
+              { className: "custom-toast" }
+            );
+            errorShown = true;
+          }
+          return false;
+        }
+        return true;
+      });
+
+      if (validFiles.length > 0) {
         setIsProcessing(true);
-        const resizedFiles = await Promise.all(
-          acceptedFiles.map((file) => resizeImage(file))
-        );
+        const resizedFiles = await Promise.all(validFiles.map(resizeImage));
         setIsProcessing(false);
 
         const newImages = resizedFiles.map((file) => ({
@@ -256,9 +268,7 @@ export default function UploadImg() {
     );
     if (newQueue.length === 0) {
       setActiveIndex(-1);
-      return;
-    }
-    if (indexToRemove < activeIndex) {
+    } else if (indexToRemove < activeIndex) {
       setActiveIndex((prev) => prev - 1);
     } else if (
       indexToRemove === activeIndex &&
@@ -303,7 +313,9 @@ export default function UploadImg() {
         setActiveIndex(-1);
       }
     } else {
-      toast.error("Harap pilih setidaknya satu kategori.");
+      toast.error("Harap pilih setidaknya satu kategori.", {
+        className: "custom-toast",
+      });
     }
   };
 
@@ -321,14 +333,16 @@ export default function UploadImg() {
 
   async function handleUploadAll() {
     if (croppedImages.length === 0) {
-      toast.error("Tidak ada gambar untuk di-upload.");
+      toast.error("Tidak ada gambar untuk di-upload.", {
+        className: "custom-toast",
+      });
       return;
     }
     setIsUploading(true);
     setUploadProgress({ current: 0, total: croppedImages.length });
 
     const totalImages = croppedImages.length;
-    const successfulUploads = [];
+    let successfulUploads = 0;
     const failedUploads = [];
 
     for (let i = 0; i < totalImages; i++) {
@@ -352,12 +366,13 @@ export default function UploadImg() {
           body: formData,
         });
 
+        const result = await response.json();
         if (!response.ok) {
-          throw new Error(`Gagal mengunggah ${image.name}`);
+          throw new Error(result.message || `Gagal mengunggah ${image.name}`);
         }
-        successfulUploads.push(image.name);
+        successfulUploads++;
       } catch (error) {
-        failedUploads.push(image.name);
+        failedUploads.push({ name: image.name, reason: error.message });
         console.error(`Error saat upload ${image.name}:`, error);
       }
     }
@@ -366,14 +381,16 @@ export default function UploadImg() {
 
     if (failedUploads.length > 0) {
       toast.error(
-        `${failedUploads.length} gambar gagal diunggah. Lihat konsol untuk detail.`
+        `Gagal upload ${failedUploads.length} gambar. Error: ${failedUploads[0].reason}`,
+        { className: "custom-toast", duration: 6000 }
       );
     }
-    if (successfulUploads.length > 0) {
-      toast.success(`${successfulUploads.length} gambar berhasil di-upload!`, {
-        className: "custom-toast",
-      });
-      router.push("/admin/kelola-galeri");
+
+    if (successfulUploads > 0) {
+      toast.success(`${successfulUploads} gambar berhasil di-upload!`);
+      if (failedUploads.length === 0) {
+        router.push("/admin/kelola-galeri");
+      }
     }
   }
 
@@ -525,7 +542,7 @@ export default function UploadImg() {
                 isPanelDisabled ? "opacity-40 pointer-events-none" : ""
               }`}
             >
-              <div className={`space-y-6`}>
+              <div className="space-y-6">
                 <div>
                   <label className="text-sm md:text-base font-semibold text-gray-700 flex items-center mb-3">
                     <Scissors size={18} className="mr-2 text-gray-500" /> Pilih
@@ -572,8 +589,7 @@ export default function UploadImg() {
 
               <div className="flex flex-col flex-grow min-h-0">
                 <label className="text-sm md:text-base font-semibold text-gray-700 flex items-center mb-3">
-                  <ListCheck size={18} className="mr-2 text-gray-500" />
-                  Antrean
+                  <ListCheck size={18} className="mr-2 text-gray-500" /> Antrean
                 </label>
                 <div className="space-y-2 overflow-y-auto p-2 flex-grow border rounded-lg">
                   {imageQueue.length > 0 ? (
@@ -654,8 +670,7 @@ export default function UploadImg() {
                   !completedCrop ||
                   activeImage.categories.length === 0
                 }
-                className="w-full py-3 bg-gradient-to-br from-teal-400 via-teal-700 to-teal-400 text-white text-sm 
-                font-semibold rounded-full hover:bg-none hover:bg-teal-600 disabled:bg-none disabled:bg-gray-300 disabled:cursor-not-allowed"
+                className="w-full py-3 bg-gradient-to-br from-teal-400 via-teal-700 to-teal-400 text-white text-sm font-semibold rounded-full hover:bg-none hover:bg-teal-600 disabled:bg-none disabled:bg-gray-300 disabled:cursor-not-allowed"
               >
                 {activeIndex === imageQueue.length - 1
                   ? "Selesai & Lihat Galeri"

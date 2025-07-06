@@ -3,9 +3,14 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const timeSlots = [
+  "09:00",
+  "09:30",
+  "10:00",
   "10:30",
   "11:00",
   "11:30",
+  "12:00",
+  "12:30",
   "13:00",
   "13:30",
   "14:00",
@@ -22,7 +27,6 @@ const timeSlots = [
   "20:00",
   "20:30",
   "21:00",
-  "21:30",
 ];
 
 export default function BookingCalendar({
