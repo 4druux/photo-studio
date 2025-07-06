@@ -1,4 +1,3 @@
-
 import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { nanoid } from "nanoid";
@@ -9,9 +8,8 @@ export async function POST(request) {
   try {
     const data = await request.json();
 
-    const bookingDate = new Date(data.date);
-    const [hours, minutes] = data.time.split(":");
-    bookingDate.setHours(hours, minutes);
+    const bookingDateTimeString = `${data.date.split("T")[0]}T${data.time}:00`;
+    const bookingDate = new Date(bookingDateTimeString);
 
     const newBooking = await prisma.booking.create({
       data: {
