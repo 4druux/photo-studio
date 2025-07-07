@@ -39,12 +39,12 @@ export default function PackageNotFound() {
             type: "spring",
             stiffness: 120,
           }}
-          className="mt-6"
+          className="mt-6 flex justify-center"
         >
           <ButtonTextFlip
             label="Kembali"
             hoverLabel="Kembali"
-            href="/"
+            onClick={() => window.history.back()}
             className="flex"
           />
         </motion.div>

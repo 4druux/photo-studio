@@ -1,12 +1,10 @@
 "use client";
 import { motion } from "framer-motion";
-import { usePathname, useRouter } from "next/navigation";
-import { IoArrowBack } from "react-icons/io5";
+import { usePathname } from "next/navigation";
 import ButtonTextFlip from "@/components/button/ButtonTextFlip";
 
 export default function NotFound() {
   const pathname = usePathname();
-  const router = useRouter();
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 text-teal-500">
@@ -59,7 +57,7 @@ export default function NotFound() {
         >
           <div className="flex items-center justify-center">
             <ButtonTextFlip
-              onClick={() => router.back("/")}
+              onClick={() => window.history.back()}
               label="Kembali"
               hoverLabel="Kembali"
             ></ButtonTextFlip>

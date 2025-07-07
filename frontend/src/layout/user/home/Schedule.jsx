@@ -6,8 +6,11 @@ import Tittle from "@/components/text/Tittle";
 import Description from "@/components/text/Description";
 import { schedulePackages } from "@/data/packages";
 import { containerVariants, itemVariants } from "@/utils/animations";
+import { useRouter } from "next/navigation";
 
 export default function Schedule() {
+  const router = useRouter();
+
   return (
     <section id="schedule" className="pt-12 md:pt-24">
       <div className="container mx-auto px-4">
@@ -66,7 +69,7 @@ export default function Schedule() {
                 </ul>
 
                 <ButtonTextFlip
-                  href={`/formulir?paket=${pkg.query}`}
+                  onClick={() => router.push(`/formulir?paket=${pkg.query}`)}
                   label="Booking Sekarang"
                   hoverLabel="Booking Sekarang"
                 />

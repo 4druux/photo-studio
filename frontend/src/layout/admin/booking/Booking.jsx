@@ -90,7 +90,7 @@ export default function Booking() {
   if (!bookings)
     return (
       <div className="flex justify-center items-center h-full">
-        <DotLoader text="Memuat data booking..." />
+        <DotLoader />
       </div>
     );
 

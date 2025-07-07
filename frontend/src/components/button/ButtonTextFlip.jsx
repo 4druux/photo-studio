@@ -1,18 +1,17 @@
 "use client";
 import React from "react";
-import Link from "next/link";
 
 export default function ButtonTextFlip({
-  href = "/",
+  onClick = () => {},
+  type = "button",
   className = "",
   label = "",
   hoverLabel = "",
-  target = "",
 }) {
   return (
-    <Link
-      href={href}
-      target={target}
+    <button
+      type={type}
+      onClick={onClick}
       className={`px-6 py-3 rounded-full overflow-hidden bg-gradient-to-br from-teal-200 via-teal-700 to-teal-400 group cursor-pointer ${className}`}
     >
       <div className="perspectiveText relative flex flex-col justify-center items-center w-full h-full [transform-style:preserve-3d] transition-transform duration-[700ms] ease-[cubic-bezier(0.76,0,0.24,1)] group-hover:[transform:rotateX(-90deg)]">
@@ -24,6 +23,6 @@ export default function ButtonTextFlip({
           {hoverLabel}
         </p>
       </div>
-    </Link>
+    </button>
   );
 }

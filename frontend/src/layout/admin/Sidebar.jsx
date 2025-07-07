@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
+import { usePathname, useRouter } from "next/navigation";
 import {
   CalendarClock,
   ImageUp,
@@ -10,6 +10,7 @@ import {
   ChevronFirst,
   ChevronLast,
   LayoutDashboard,
+  LogOut,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -61,6 +62,14 @@ export default function Sidebar({
   mobileOpen,
   setMobileOpen,
 }) {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/auth/login");
+    router.refresh();
+  };
+
   const navItems = [
     {
       label: "Request Booking",
@@ -130,6 +139,33 @@ export default function Sidebar({
           <NavLink key={item.href} item={item} expanded={expanded} />
         ))}
       </ul>
+      <div className="border-t p-3">
+        <div
+          onClick={handleLogout}
+          className="relative flex items-center text-sm font-medium rounded-md cursor-pointer transition-colors group w-full text-gray-600 hover:bg-red-50 p-3"
+        >
+          <LogOut size={20} className="text-red-500" />
+          <span
+            className={`overflow-hidden transition-all text-red-500 ${
+              expanded ? "w-52 ml-3" : "w-0"
+            }`}
+          >
+            Logout
+          </span>
+          {!expanded && (
+            <div
+              className={`
+              absolute left-full rounded-md px-2 py-1 ml-6
+              bg-red-50 text-red-600 text-xs
+              invisible opacity-20 -translate-x-3 transition-all
+              group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
+            `}
+            >
+              Logout
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 
@@ -190,6 +226,18 @@ export default function Sidebar({
                     />
                   </motion.li>
                 ))}
+                <motion.li variants={mobileNavItemVariants}>
+                  <div
+                    onClick={() => {
+                      setMobileOpen(false);
+                      handleLogout();
+                    }}
+                    className="flex items-center p-3 text-sm font-medium rounded-md cursor-pointer text-red-500 hover:bg-red-50"
+                  >
+                    <LogOut size={20} />
+                    <span className="ml-3">Logout</span>
+                  </div>
+                </motion.li>
               </motion.ul>
             </motion.div>
           </>

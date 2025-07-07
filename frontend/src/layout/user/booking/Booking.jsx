@@ -261,7 +261,7 @@ export default function Booking() {
           <ButtonTextFlip
             label="Konfirm Admin"
             hoverLabel="Konfirm Admin"
-            href={whatsappLink}
+            onClick={() => window.open(whatsappLink, "_blank")}
             target="_blank"
             rel="noopener noreferrer"
           />
