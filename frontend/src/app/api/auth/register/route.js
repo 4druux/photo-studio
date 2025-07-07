@@ -9,14 +9,15 @@ export async function POST(request) {
     const adminCount = await prisma.admin.count();
     if (adminCount >= 2) {
       return NextResponse.json(
-        { message: "Registrasi tidak diizinkan." },
+        {
+          message:
+            "Registrasi tidak diizinkan karena jumlah admin sudah maksimal.",
+        },
         { status: 403 }
       );
     }
 
     const { name, email, password } = await request.json();
-
-    console.log("Menerima permintaan register untuk email:", email);
 
     if (!password || password.length < 6) {
       return NextResponse.json(
@@ -26,7 +27,6 @@ export async function POST(request) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    console.log("Password di-hash:", hashedPassword);
 
     const newAdmin = await prisma.admin.create({
       data: {
@@ -38,10 +38,7 @@ export async function POST(request) {
 
     const { password: _, ...adminData } = newAdmin;
 
-    return NextResponse.json(
-      { message: "Admin berhasil dibuat!", admin: adminData },
-      { status: 201 }
-    );
+    return NextResponse.json(adminData, { status: 201 });
   } catch (error) {
     console.error("ERROR REGISTRASI:", error);
     if (error.code === "P2002" && error.meta?.target?.includes("email")) {

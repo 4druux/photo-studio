@@ -8,38 +8,21 @@ const prisma = new PrismaClient();
 export async function POST(request) {
   try {
     const { email, password } = await request.json();
-    console.log(`Mencoba login dengan email: ${email}`);
 
     const admin = await prisma.admin.findUnique({ where: { email } });
 
-    if (!admin) {
-      console.log(`Admin dengan email ${email} tidak ditemukan.`);
+    if (!admin || !(await bcrypt.compare(password, admin.password))) {
       return NextResponse.json(
         { message: "Email atau password salah." },
         { status: 401 }
       );
     }
 
-    console.log(`Admin ditemukan. Membandingkan password...`);
-    console.log(`Password dari user: ${password}`);
-    console.log(`Hash dari DB: ${admin.password}`);
-
-    const isPasswordValid = await bcrypt.compare(password, admin.password);
-
-    if (!isPasswordValid) {
-      console.log(`Perbandingan password GAGAL untuk email: ${email}`);
-      return NextResponse.json(
-        { message: "Email atau password salah." },
-        { status: 401 }
-      );
-    }
-
-    console.log(`Login BERHASIL untuk email: ${email}`);
     const token = jwt.sign({ adminId: admin.id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
 
-    const response = NextResponse.json({ message: "Login berhasil!" });
+    const response = NextResponse.json({ success: true });
     response.cookies.set("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -51,7 +34,7 @@ export async function POST(request) {
   } catch (error) {
     console.error("ERROR LOGIN:", error);
     return NextResponse.json(
-      { message: "Terjadi kesalahan saat login." },
+      { message: "Terjadi kesalahan internal pada server." },
       { status: 500 }
     );
   }

@@ -93,7 +93,7 @@ export default function Gallery() {
   if (!data)
     return (
       <div className="flex justify-center py-20">
-        <DotLoader text="Memuat galeri..." />
+        <DotLoader />
       </div>
     );
 

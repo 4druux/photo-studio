@@ -1,4 +1,3 @@
-
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { v2 as cloudinary } from "cloudinary";
@@ -57,8 +56,8 @@ export async function POST(request) {
 
       const newImage = await prisma.galleryImage.create({
         data: {
-          filename: uploadResult.public_id, 
-          url: uploadResult.secure_url, 
+          filename: uploadResult.public_id,
+          url: uploadResult.secure_url,
           width: width,
           height: height,
           categories: {

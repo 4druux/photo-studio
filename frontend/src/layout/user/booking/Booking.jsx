@@ -16,18 +16,7 @@ import ButtonAnimation from "@/components/button/ButtonAnimation";
 import ButtonTextFlip from "@/components/button/ButtonTextFlip";
 import DotLoader from "@/components/loading/dotloader";
 import { containerVariants, itemVariants } from "@/utils/animations";
-
-const ErrorMessage = ({ message, onRetry }) => (
-  <div className="text-center">
-    <p className="text-red-500 mb-4">{message}</p>
-    <button
-      onClick={onRetry}
-      className="bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600"
-    >
-      Coba Lagi
-    </button>
-  </div>
-);
+import BookingNotFound from "./BookingNotFound";
 
 export default function Booking() {
   const searchParams = useSearchParams();
@@ -82,9 +71,7 @@ export default function Booking() {
 
   const handleCopy = (textToCopy, message) => {
     navigator.clipboard.writeText(textToCopy);
-    toast.success(message, {
-      className: "custom-toast",
-    });
+    toast.success(message);
   };
 
   if (loading)
@@ -94,15 +81,9 @@ export default function Booking() {
       </div>
     );
 
-  if (error || !booking)
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <ErrorMessage
-          message={error || "Booking tidak ditemukan."}
-          onRetry={fetchBooking}
-        />
-      </div>
-    );
+  if (error || !booking) {
+    return <BookingNotFound />;
+  }
 
   const whatsappMessage = encodeURIComponent(
     `Halo Admin Foto Studio,\n\nSaya ingin mengonfirmasi pembayaran untuk booking dengan detail berikut:\n\nTiket ID: FOTO-${booking.id
@@ -115,7 +96,6 @@ export default function Booking() {
 
   return (
     <div className="min-h-screen p-0 md:p-12">
-      <Toaster position="top-center" />
       <motion.div
         className="max-w-2xl mx-auto bg-white p-4 md:p-6 md:rounded-2xl shadow-md pb-12 md:mb-0"
         variants={containerVariants}

@@ -130,7 +130,7 @@ export default function KelolaGaleri() {
   if (isLoading)
     return (
       <div className="flex justify-center items-center h-full">
-        <DotLoader text="Memuat gambar..." />
+        <DotLoader />
       </div>
     );
   if (!data?.images)
@@ -169,7 +169,7 @@ export default function KelolaGaleri() {
     >
       {isDeleting && (
         <div className="fixed inset-0 bg-white flex items-center justify-center z-50">
-          <DotLoader text="Menghapus gambar..." />
+          <DotLoader  />
         </div>
       )}
       <style jsx global>{`

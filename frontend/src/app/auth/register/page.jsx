@@ -1,4 +1,3 @@
-
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -22,7 +21,7 @@ export default function RegisterPage() {
   const [isAllowed, setIsAllowed] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
   const [errors, setErrors] = useState({});
-  const [authError, setAuthError] = useState(""); 
+  const [authError, setAuthError] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -94,16 +93,18 @@ export default function RegisterPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password }),
       });
-      const data = await response.json();
+
       if (!response.ok) {
+        const data = await response.json();
         setAuthError(data.message || "Terjadi kesalahan saat registrasi.");
+        setIsLoading(false);
         return;
       }
+
       toast.success("Registrasi berhasil! Silakan login.");
       router.push("/auth/login");
     } catch (error) {
       toast.error(error.message);
-    } finally {
       setIsLoading(false);
     }
   };
@@ -136,13 +137,15 @@ export default function RegisterPage() {
   return (
     <div className="flex items-center justify-center min-h-screen px-2">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-2xl border border-gray-100 shadow-md">
-        <Image
-          src="/images/logo.png"
-          alt="logo antika studio"
-          width={100}
-          height={100}
-          className="mx-auto w-[150px] h-[40px] object-cover"
-        />
+        <Link href="/">
+          <Image
+            src="/images/logo.png"
+            alt="logo antika studio"
+            width={100}
+            height={100}
+            className="mx-auto w-[150px] h-[40px] object-cover"
+          />
+        </Link>
 
         <h1 className="text-2xl font-semibold text-center text-gray-600">
           Admin <span className="text-teal-500 ml-1">Register</span>

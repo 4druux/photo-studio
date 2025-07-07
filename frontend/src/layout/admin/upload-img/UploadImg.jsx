@@ -196,8 +196,7 @@ export default function UploadImg() {
         if (file.size > MAX_FILE_SIZE) {
           if (!errorShown) {
             toast.error(
-              `Ukuran file "${file.name}" terlalu besar. Maksimal 5 MB.`,
-              { className: "custom-toast" }
+              `Ukuran file "${file.name}" terlalu besar. Maksimal 5 MB.`
             );
             errorShown = true;
           }
@@ -313,9 +312,7 @@ export default function UploadImg() {
         setActiveIndex(-1);
       }
     } else {
-      toast.error("Harap pilih setidaknya satu kategori.", {
-        className: "custom-toast",
-      });
+      toast.error("Harap pilih setidaknya satu kategori.");
     }
   };
 
@@ -333,9 +330,7 @@ export default function UploadImg() {
 
   async function handleUploadAll() {
     if (croppedImages.length === 0) {
-      toast.error("Tidak ada gambar untuk di-upload.", {
-        className: "custom-toast",
-      });
+      toast.error("Tidak ada gambar untuk di-upload.");
       return;
     }
     setIsUploading(true);
@@ -381,15 +376,12 @@ export default function UploadImg() {
 
     if (failedUploads.length > 0) {
       toast.error(
-        `Gagal upload ${failedUploads.length} gambar. Error: ${failedUploads[0].reason}`,
-        { className: "custom-toast", duration: 6000 }
+        `Gagal upload ${failedUploads.length} gambar. Error: ${failedUploads[0].reason}`
       );
     }
 
     if (successfulUploads > 0) {
-      toast.success(`${successfulUploads} gambar berhasil di-upload!`, {
-        className: "custom-toast",
-      });
+      toast.success(`${successfulUploads} gambar berhasil di-upload!`);
       if (failedUploads.length === 0) {
         router.push("/admin/kelola-galeri");
       }
@@ -435,7 +427,7 @@ export default function UploadImg() {
   if (isProcessing) {
     return (
       <div className="w-full h-screen flex items-center justify-center">
-        <DotLoader text="Memproses gambar..." />
+        <DotLoader />
       </div>
     );
   }

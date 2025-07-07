@@ -13,6 +13,7 @@ import {
   LogOut,
 } from "lucide-react";
 import Image from "next/image";
+import { toast } from "react-hot-toast";
 
 const NavLink = ({ item, expanded, onClick }) => {
   const pathname = usePathname();
@@ -65,9 +66,14 @@ export default function Sidebar({
   const router = useRouter();
 
   const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/auth/login");
-    router.refresh();
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      toast.success("Logout berhasil!");
+      router.push("/auth/login");
+      router.refresh();
+    } catch (error) {
+      toast.error("Gagal logout, silakan coba lagi.");
+    }
   };
 
   const navItems = [
@@ -139,6 +145,7 @@ export default function Sidebar({
           <NavLink key={item.href} item={item} expanded={expanded} />
         ))}
       </ul>
+
       <div className="border-t p-3">
         <div
           onClick={handleLogout}
@@ -213,6 +220,7 @@ export default function Sidebar({
                   <X size={20} />
                 </button>
               </div>
+
               <motion.ul
                 className="flex-1 px-3 pt-4 space-y-2"
                 variants={mobileNavContainerVariants}
@@ -226,19 +234,21 @@ export default function Sidebar({
                     />
                   </motion.li>
                 ))}
-                <motion.li variants={mobileNavItemVariants}>
-                  <div
-                    onClick={() => {
-                      setMobileOpen(false);
-                      handleLogout();
-                    }}
-                    className="flex items-center p-3 text-sm font-medium rounded-md cursor-pointer text-red-500 hover:bg-red-50"
-                  >
-                    <LogOut size={20} />
-                    <span className="ml-3">Logout</span>
-                  </div>
-                </motion.li>
               </motion.ul>
+
+              <div className="border-t p-3">
+                <motion.div
+                  variants={mobileNavItemVariants}
+                  onClick={() => {
+                    setMobileOpen(false);
+                    handleLogout();
+                  }}
+                  className="flex items-center p-3 text-sm font-medium rounded-md cursor-pointer text-red-500 hover:bg-red-50"
+                >
+                  <LogOut size={20} />
+                  <span className="ml-3">Logout</span>
+                </motion.div>
+              </div>
             </motion.div>
           </>
         )}

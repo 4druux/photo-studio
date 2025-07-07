@@ -70,7 +70,7 @@ export const sendPasswordResetEmail = async ({ to, name, resetLink }) => {
     const { data, error } = await resend.emails.send({
       from: `Antika Studio <${process.env.RESEND_SENDER_EMAIL}>`,
       to: [to],
-      subject: "Instruksi Reset Password Akun Admin Anda",
+      subject: "Reset Password",
       html: htmlContent,
     });
 

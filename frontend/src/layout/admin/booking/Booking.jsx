@@ -77,12 +77,10 @@ export default function Booking() {
 
       mutate();
 
-      toast.success("Status berhasil diperbarui!", {
-        className: "custom-toast",
-      });
+      toast.success("Status berhasil diperbarui!");
     } catch (error) {
       console.error(error);
-      toast.error("Gagal memperbarui status.", { className: "custom-toast" });
+      toast.error("Gagal memperbarui status.");
     }
   };
 

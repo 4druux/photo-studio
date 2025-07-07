@@ -79,24 +79,19 @@ function ResetPasswordForm() {
         body: JSON.stringify({ token, password }),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
+        const data = await response.json();
         throw new Error(data.message || "Gagal mereset password.");
       }
 
-      toast.success(data.message || "Password berhasil direset!", {
-        className: "custom-toast",
-      });
-
-      setIsSuccess(true);
+      toast.success("Password berhasil direset!");
 
       setTimeout(() => {
+        setIsSuccess(true);
         router.push("/auth/login");
-      }, 3000);
+      }, 2000);
     } catch (err) {
       setApiError(err.message || "Terjadi kesalahan.");
-    } finally {
       setIsLoading(false);
     }
   };
@@ -112,13 +107,15 @@ function ResetPasswordForm() {
   return (
     <div className="flex items-center justify-center min-h-screen px-2">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-2xl border border-gray-100 shadow-md">
-        <Image
-          src="/images/logo.png"
-          alt="logo antika studio"
-          width={100}
-          height={100}
-          className="mx-auto w-[150px] h-[40px] object-cover"
-        />
+        <Link href="/">
+          <Image
+            src="/images/logo.png"
+            alt="logo antika studio"
+            width={100}
+            height={100}
+            className="mx-auto w-[150px] h-[40px] object-cover"
+          />
+        </Link>
 
         <div className="text-center">
           <h1 className="text-2xl font-semibold text-gray-600">

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Toaster } from "react-hot-toast";
 import Sidebar from "@/layout/admin/Sidebar";
 import { Menu } from "lucide-react";
 import Image from "next/image";
@@ -32,10 +31,7 @@ export default function AdminLayout({ children }) {
           </button>
         </header>
 
-        <main className="flex-1 xl:p-8">
-          <Toaster position="top-right" reverseOrder={false} />
-          {children}
-        </main>
+        <main className="flex-1 xl:p-8">{children}</main>
       </div>
     </div>
   );

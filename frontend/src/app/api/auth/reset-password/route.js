@@ -15,17 +15,14 @@ export async function POST(request) {
         { status: 400 }
       );
     }
-    
-    const hashedToken = crypto
-      .createHash("sha256")
-      .update(token)
-      .digest("hex");
+
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
     const admin = await prisma.admin.findFirst({
       where: {
         passwordResetToken: hashedToken,
         passwordResetExpires: {
-          gte: new Date(), 
+          gte: new Date(),
         },
       },
     });
@@ -48,8 +45,7 @@ export async function POST(request) {
       },
     });
 
-    return NextResponse.json({ message: "Password berhasil direset!" });
-
+    return NextResponse.json({});
   } catch (error) {
     console.error("RESET PASSWORD ERROR:", error);
     return NextResponse.json(

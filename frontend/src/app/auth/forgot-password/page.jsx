@@ -3,6 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Loader2, Mail, AlertCircle, CheckCircle } from "lucide-react";
 import Image from "next/image";
+import { toast } from "react-hot-toast";
 
 const validateEmail = (email) => {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -33,13 +34,15 @@ export default function ForgotPasswordPage() {
         body: JSON.stringify({ email }),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
+        const data = await response.json();
         throw new Error(data.message || "Gagal mengirim email reset.");
       }
 
-      setSuccessMessage(data.message);
+      setSuccessMessage(
+        "Jika email Anda terdaftar, instruksi untuk mereset password telah dikirim."
+      );
+      toast.success("Link reset password telah dikirim.");
       setEmail("");
     } catch (err) {
       setError(err.message || "Terjadi kesalahan.");
@@ -51,21 +54,24 @@ export default function ForgotPasswordPage() {
   return (
     <div className="flex items-center justify-center min-h-screen px-2">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-2xl border border-gray-100 shadow-md">
-        <Image
-          src="/images/logo.png"
-          alt="logo antika studio"
-          width={100}
-          height={100}
-          className="mx-auto w-[150px] h-[40px] object-cover"
-        />
+        <Link href="/">
+          <Image
+            src="/images/logo.png"
+            alt="logo antika studio"
+            width={100}
+            height={100}
+            className="mx-auto w-[150px] h-[40px] object-cover"
+          />
+        </Link>
 
         <div className="text-center">
           <h1 className="text-2xl font-semibold text-gray-600">
             Lupa <span className="text-teal-500">Password</span>
           </h1>
           <p className="text-sm text-gray-500 mt-2">
-            Masukkan email Anda dan kami akan mengirimkan instruksi untuk
-            mereset password.
+            {!successMessage
+              ? "Masukkan email Anda dan kami akan mengirimkan instruksi untuk mereset password."
+              : "Silakan periksa kotak masuk email Anda."}
           </p>
         </div>
 
@@ -84,44 +90,46 @@ export default function ForgotPasswordPage() {
           )}
 
           {!successMessage && (
-            <div>
-              <label
-                htmlFor="email"
-                className="text-sm font-medium text-gray-700"
-              >
-                Email
-              </label>
-              <div className="relative mt-2">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none border-gray-300 focus:border-teal-500 placeholder:text-gray-400 placeholder:text-sm"
-                  placeholder="email@anda.com"
-                />
+            <>
+              <div>
+                <label
+                  htmlFor="email"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Email
+                </label>
+                <div className="relative mt-2">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setError("");
+                    }}
+                    className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none border-gray-300 focus:border-teal-500 placeholder:text-gray-400 placeholder:text-sm"
+                    placeholder="email@anda.com"
+                  />
+                </div>
               </div>
-            </div>
-          )}
-
-          {!successMessage && (
-            <div className="pt-2">
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full py-3 text-sm font-semibold text-white bg-gradient-to-br from-teal-200 via-teal-700 to-teal-400 rounded-full hover:opacity-95 disabled:opacity-70 flex items-center justify-center transition-all"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="animate-spin h-5 w-5 mr-3" />
-                    <span>Mengirim...</span>
-                  </>
-                ) : (
-                  "Kirim Link Reset"
-                )}
-              </button>
-            </div>
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full py-3 text-sm font-semibold text-white bg-gradient-to-br from-teal-200 via-teal-700 to-teal-400 rounded-full hover:opacity-95 disabled:opacity-70 flex items-center justify-center transition-all"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="animate-spin h-5 w-5 mr-3" />
+                      <span>Mengirim...</span>
+                    </>
+                  ) : (
+                    "Kirim Link Reset"
+                  )}
+                </button>
+              </div>
+            </>
           )}
         </form>
         <p className="text-sm text-center text-gray-600">

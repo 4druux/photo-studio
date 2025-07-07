@@ -1,4 +1,3 @@
-
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -18,7 +17,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isRedirecting, setIsRedirecting] = useState(false); 
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const [canRegister, setCanRegister] = useState(false);
   const [errors, setErrors] = useState({});
   const [authError, setAuthError] = useState("");
@@ -89,21 +88,23 @@ export default function LoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-      const data = await response.json();
+
       if (!response.ok) {
         if (response.status === 401) {
-          setAuthError(data.message || "Email atau password salah.");
+          setAuthError("Email atau Kata Sandi salah.");
         } else {
-          throw new Error(data.message || "Gagal login.");
+          const data = await response.json();
+          throw new Error(data.message || "Gagal login. Silakan coba lagi.");
         }
         setIsLoading(false);
         return;
       }
-      toast.success("Login berhasil!", { className: "custom-toast" });
+
+      toast.success("Login berhasil!");
       setIsRedirecting(true);
       router.push("/admin/booking");
     } catch (error) {
-      toast.error(error.message, { className: "custom-toast" });
+      toast.error(error.message);
       setIsLoading(false);
     }
   };
@@ -119,13 +120,15 @@ export default function LoginPage() {
   return (
     <div className="flex items-center justify-center min-h-screen px-2">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-2xl border border-gray-100 shadow-md">
-        <Image
-          src="/images/logo.png"
-          alt="logo antika studio"
-          width={100}
-          height={100}
-          className="mx-auto w-[150px] h-[40px] object-cover"
-        />
+        <Link href="/">
+          <Image
+            src="/images/logo.png"
+            alt="logo antika studio"
+            width={100}
+            height={100}
+            className="mx-auto w-[150px] h-[40px] object-cover"
+          />
+        </Link>
 
         <h1 className="text-2xl font-semibold text-center text-gray-600">
           Admin <span className="text-teal-500 ml-1">Login</span>
