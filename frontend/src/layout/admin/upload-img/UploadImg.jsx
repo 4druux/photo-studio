@@ -387,7 +387,9 @@ export default function UploadImg() {
     }
 
     if (successfulUploads > 0) {
-      toast.success(`${successfulUploads} gambar berhasil di-upload!`);
+      toast.success(`${successfulUploads} gambar berhasil di-upload!`, {
+        className: "custom-toast",
+      });
       if (failedUploads.length === 0) {
         router.push("/admin/kelola-galeri");
       }

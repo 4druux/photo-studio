@@ -34,12 +34,12 @@ const features = [
 
 export default function About() {
   return (
-    <section className="relative w-full py-24 md:py-64 mt-16 overflow-hidden">
+    <section className="relative w-full py-24 md:py-32 lg:py-40 xl:py-48 mt-16 overflow-hidden">
       <div className="absolute inset-0 w-full h-full z-0">
         {/* Gambar untuk Desktop */}
         <div className="hidden md:block">
           <Image
-            src="/images/dekstopwaves.png"
+            src="/images/wavedekstop.png"
             alt="Abstract wave background for desktop"
             layout="fill"
             objectFit="cover"
@@ -49,7 +49,7 @@ export default function About() {
         {/* Gambar untuk Mobile */}
         <div className="block md:hidden">
           <Image
-            src="/images/mobilewaves.png"
+            src="/images/wavemobile.png"
             alt="Abstract wave background for mobile"
             layout="fill"
             objectFit="cover"

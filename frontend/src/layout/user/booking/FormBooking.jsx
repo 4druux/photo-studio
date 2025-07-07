@@ -34,7 +34,10 @@ export default function FormBooking() {
   const searchParams = useSearchParams();
   const paketQuery = searchParams.get("paket");
 
-  const { data: bookings } = useSWR("/api/bookings/all", fetcher);
+  const { data: bookings } = useSWR("/api/bookings/all", fetcher, {
+    revalidateOnFocus: true,
+    revalidateOnReconnect: true,
+  });
 
   const selectedPackage = schedulePackages.find(
     (pkg) => pkg.query === paketQuery
@@ -156,7 +159,9 @@ export default function FormBooking() {
   const isPhoneInvalid = errors.phone || errors.phoneFormat;
 
   const bookedDates = bookings
-    ? bookings.map((booking) => new Date(booking.tanggal).toISOString())
+    ? bookings
+        .filter((booking) => booking.status !== "CANCELLED")
+        .map((booking) => new Date(booking.tanggal).toISOString())
     : [];
 
   return (

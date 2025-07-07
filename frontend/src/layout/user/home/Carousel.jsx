@@ -70,11 +70,10 @@ export default function Carousel() {
           >
             <div className="relative w-[350px] h-[350px] lg:w-[450px] lg:h-[450px]">
               <Image
-                src="/images/carousel.jpg"
+                src="/images/people-carousel.png"
                 alt="Contoh Hasil Foto Studio"
                 fill
                 style={{ objectFit: "cover" }}
-                className="rounded-3xl shadow-2xl"
                 priority
               />
             </div>
