@@ -10,6 +10,7 @@ import { schedulePackages } from "@/data/packages";
 import BookingCalendar from "@/components/BookingCalendar";
 import PackageNotFound from "@/layout/user/booking/PackageNotFound";
 import { containerVariants, itemVariants } from "@/utils/animations";
+import TermsModal from "@/components/modal/TermsModal";
 
 const PHONE_PREFIX = "+62";
 
@@ -177,6 +178,7 @@ export default function FormBooking() {
             <Link href="/#schedule">
               <ArrowLeft className="inline-block mr-1 cursor-pointer hover:scale-105 transition-transform duration-300" />
             </Link>
+
             <h2 className="text-lg lg:text-xl font-semibold">
               Formulir Booking
             </h2>
@@ -185,6 +187,7 @@ export default function FormBooking() {
             Lengkapi data diri, deskripsi opsional, dan pilih jadwal Anda.
           </p>
         </motion.div>
+
         <motion.div
           className="bg-teal-50 border border-teal-200 p-4 rounded-xl mb-4 space-y-3"
           variants={itemVariants}
@@ -200,6 +203,7 @@ export default function FormBooking() {
             ))}
           </ul>
         </motion.div>
+
         <div
           className="space-y-6"
           onKeyDown={(e) => e.key === "Enter" && e.preventDefault()}
@@ -224,6 +228,7 @@ export default function FormBooking() {
               <p className="text-red-500 text-xs mt-1">{errors.name}</p>
             )}
           </motion.div>
+
           <motion.div variants={itemVariants}>
             <label
               htmlFor="phone"
@@ -257,6 +262,7 @@ export default function FormBooking() {
               <p className="text-red-500 text-xs mt-1">{errors.phoneFormat}</p>
             )}
           </motion.div>
+
           <motion.div variants={itemVariants}>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Tanggal & Waktu Pilihan
@@ -269,6 +275,7 @@ export default function FormBooking() {
               <p className="text-red-500 text-xs mt-1">{errors.date}</p>
             )}
           </motion.div>
+
           <motion.div variants={itemVariants}>
             <label
               htmlFor="description"
@@ -284,6 +291,10 @@ export default function FormBooking() {
               className="block w-full border border-gray-300 shadow-sm py-2 px-3 rounded-lg min-h-[100px] focus:outline-none `focus:ring-teal-500 focus:border-teal-500 placeholder:text-gray-400 placeholder:text-sm`"
               placeholder="Detail tambahan tentang sesi foto Anda..."
             />
+          </motion.div>
+
+          <motion.div variants={itemVariants}>
+            <TermsModal />
           </motion.div>
 
           <motion.button

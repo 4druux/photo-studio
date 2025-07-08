@@ -8,9 +8,9 @@ import {
   MdKeyboardDoubleArrowLeft,
   MdKeyboardDoubleArrowRight,
 } from "react-icons/md";
-import ModalBooking from "./ModalBooking";
 import DotLoader from "@/components/loading/dotloader";
 import { containerVariants, itemVariants } from "@/utils/animations";
+import BookingModal from "@/components/modal/BookingModal";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
@@ -295,7 +295,7 @@ export default function Booking() {
       </motion.div>
 
       {selectedBooking && (
-        <ModalBooking
+        <BookingModal
           booking={selectedBooking}
           isOpen={isModalOpen}
           onClose={closeModal}

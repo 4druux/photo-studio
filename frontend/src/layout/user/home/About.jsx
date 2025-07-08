@@ -36,7 +36,6 @@ export default function About() {
   return (
     <section className="relative w-full py-24 md:py-32 lg:py-40 xl:py-48 mt-16 overflow-hidden">
       <div className="absolute inset-0 w-full h-full z-0">
-        {/* Gambar untuk Desktop */}
         <div className="hidden md:block">
           <Image
             src="/images/wavedekstop.png"
@@ -46,7 +45,7 @@ export default function About() {
             quality={100}
           />
         </div>
-        {/* Gambar untuk Mobile */}
+        
         <div className="block md:hidden">
           <Image
             src="/images/wavemobile.png"

@@ -12,7 +12,6 @@ import { FaWhatsapp } from "react-icons/fa";
 export default function Carousel() {
   return (
     <div className="relative w-full h-[100dvh] text-white overflow-hidden">
-      {/* Background image and overlay */}
       <div
         className="absolute inset-0 w-full h-full bg-cover bg-center z-0"
         style={{ backgroundImage: "url('/images/bg-carousel.jpg')" }}

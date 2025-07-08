@@ -40,7 +40,7 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-export default function ModalBooking({ booking, isOpen, onClose }) {
+export default function BookingModal({ booking, isOpen, onClose }) {
   const pkg = schedulePackages.find((p) => p.title === booking.paket);
 
   const modalVariants = {
@@ -74,10 +74,10 @@ export default function ModalBooking({ booking, isOpen, onClose }) {
               </h2>
               <button
                 onClick={onClose}
-                className="text-gray-400 hover:text-gray-600 transition"
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors group"
                 aria-label="Close"
               >
-                <X size={24} />
+                <X className="w-5 h-5 group-hover:-rotate-45 transition duration-300 ease-in-out" />
               </button>
             </div>
 

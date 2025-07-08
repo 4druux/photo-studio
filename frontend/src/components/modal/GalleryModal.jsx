@@ -143,7 +143,6 @@ const GalleryModal = ({ images, startIndex, onClose }) => {
         <X size={24} />
       </button>
 
-      {/* Kontrol Navigasi Kiri/Kanan */}
       <div className="hidden md:block">
         <button
           className="absolute left-4 top-1/2 -translate-y-1/2 text-white z-50 p-2 bg-black/50 rounded-full hover:bg-black/80 transition-colors"
@@ -167,7 +166,6 @@ const GalleryModal = ({ images, startIndex, onClose }) => {
         </button>
       </div>
 
-      {/* Kontainer Gambar Utama */}
       <div
         className="relative w-full flex-grow flex items-center justify-center overflow-hidden"
         onClick={(e) => e.stopPropagation()}
@@ -200,7 +198,6 @@ const GalleryModal = ({ images, startIndex, onClose }) => {
         </AnimatePresence>
       </div>
 
-      {/* Kontainer untuk Paginasi dan Info */}
       <div
         className="absolute bottom-0 left-0 right-0 p-4 z-50 flex flex-col items-center gap-4 bg-gradient-to-t from-black/80 to-transparent"
         onClick={(e) => e.stopPropagation()}
@@ -213,7 +210,6 @@ const GalleryModal = ({ images, startIndex, onClose }) => {
           />
         </div>
 
-        {/* Info Kategori */}
         {currentImage.categories && currentImage.categories.length > 0 && (
           <div className="flex items-center justify-center gap-2 text-white/90 bg-white/30 w-fit mx-auto py-2 px-4 rounded-full">
             <Camera size={16} />

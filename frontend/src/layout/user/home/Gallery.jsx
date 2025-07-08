@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Tittle from "@/components/text/Tittle";
 import Description from "@/components/text/Description";
 import DotLoader from "@/components/loading/dotloader";
-import GalleryModal from "@/components/GalleryModal";
+import GalleryModal from "@/components/modal/GalleryModal";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { containerVariants, itemVariants } from "@/utils/animations";
 

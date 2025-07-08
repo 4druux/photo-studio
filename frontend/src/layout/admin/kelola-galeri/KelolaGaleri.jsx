@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import SweetAlert from "@/components/SweetAlert";
 import DotLoader from "@/components/loading/dotloader";
-import GalleryModal from "@/components/GalleryModal";
+import GalleryModal from "@/components/modal/GalleryModal";
 import { containerVariants, itemVariants } from "@/utils/animations";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
@@ -169,7 +169,7 @@ export default function KelolaGaleri() {
     >
       {isDeleting && (
         <div className="fixed inset-0 bg-white flex items-center justify-center z-50">
-          <DotLoader  />
+          <DotLoader />
         </div>
       )}
       <style jsx global>{`

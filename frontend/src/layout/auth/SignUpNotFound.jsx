@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import ButtonTextFlip from "@/components/button/ButtonTextFlip";
 
-export default function BookingNotFound() {
+export default function SignUpNotFound() {
   return (
     <div className="min-h-screen flex items-center justify-center text-center p-4">
       <motion.div
@@ -26,7 +26,7 @@ export default function BookingNotFound() {
           transition={{ duration: 0.6, delay: 0.5 }}
           className="mt-2 text-xl font-medium text-gray-500"
         >
-          Booking tidak ditemukan.
+          Register tidak tersedia.
         </motion.p>
 
         <motion.p
@@ -35,8 +35,7 @@ export default function BookingNotFound() {
           transition={{ duration: 0.6, delay: 0.7 }}
           className="mt-4 max-w-sm mx-auto text-gray-500"
         >
-          Maaf, data booking yang Anda cari tidak dapat kami temukan. Mungkin ID
-          salah atau data telah dihapus.
+          Maaf, Pendaftaran tidak tersedia pada saat ini.
         </motion.p>
 
         <motion.div
