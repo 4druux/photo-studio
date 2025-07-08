@@ -96,7 +96,8 @@ export default function SignInForm() {
         toast.error("Email atau Kata Sandi salah.");
       } else if (result.ok) {
         toast.success("Login berhasil!");
-        router.push("/admin/booking");
+        setIsRedirecting(true);
+        router.replace("/admin/booking");
       } else {
         setIsLoading(false);
         toast.error("Login gagal karena alasan yang tidak diketahui.");

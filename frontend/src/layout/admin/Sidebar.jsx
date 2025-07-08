@@ -15,6 +15,8 @@ import {
 import Image from "next/image";
 import { toast } from "react-hot-toast";
 import { signOut } from "next-auth/react";
+import DotLoader from "@/components/loading/dotloader";
+import { useState } from "react";
 
 const NavLink = ({ item, expanded, onClick }) => {
   const pathname = usePathname();
@@ -64,10 +66,23 @@ export default function Sidebar({
   mobileOpen,
   setMobileOpen,
 }) {
-  const handleLogout = () => {
-    signOut({ callbackUrl: "/auth/login" });
+  const router = useRouter();
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  const handleLogout = async () => {
+    setIsSigningOut(true);
+    await signOut({ redirect: false });
     toast.success("Logout berhasil!");
+    router.replace("/auth/login");
   };
+
+  if (isSigningOut) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
+        <DotLoader />
+      </div>
+    );
+  }
 
   const navItems = [
     {

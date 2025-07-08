@@ -1,7 +1,6 @@
 import "./globals.css";
 import { Poppins } from "next/font/google";
 import ToastProvider from "@/components/providers/ToastProvider";
-import NextAuthProvider from "@/components/providers/NextAuthProvider";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -19,9 +18,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${poppins.variable}`}>
-        <NextAuthProvider>
-          <ToastProvider>{children}</ToastProvider>
-        </NextAuthProvider>
+        <ToastProvider>{children}</ToastProvider>
       </body>
     </html>
   );
