@@ -1,10 +1,8 @@
-// frontend/src/app/api/auth/reset-password/route.js
-
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
-import { db } from "@/db"; // Impor koneksi Drizzle
-import { admins } from "@/db/schema"; // Impor skema tabel admins
+import { db } from "@/db";
+import { admins } from "@/db/schema";
 import { eq, and, gte } from "drizzle-orm";
 
 export async function POST(request) {
@@ -20,7 +18,6 @@ export async function POST(request) {
 
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
-    // Cari admin dengan token yang valid dan belum kedaluwarsa
     const admin = await db.query.admins.findFirst({
       where: and(
         eq(admins.passwordResetToken, hashedToken),
@@ -37,7 +34,6 @@ export async function POST(request) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Perbarui password dan hapus token reset
     await db
       .update(admins)
       .set({

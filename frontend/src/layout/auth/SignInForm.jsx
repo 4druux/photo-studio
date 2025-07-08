@@ -65,7 +65,11 @@ export default function SignInForm() {
     e.preventDefault();
     const newErrors = {};
 
-    if (!email) newErrors.email = "Email wajib diisi.";
+    if (!email) {
+      newErrors.email = "Email wajib diisi.";
+    } else if (!validateEmail(email)) {
+      newErrors.email = "Format email tidak valid.";
+    }
     if (!password) newErrors.password = "Password wajib diisi.";
 
     if (Object.keys(newErrors).length > 0) {
@@ -83,9 +87,6 @@ export default function SignInForm() {
         email: email,
         password: password,
       });
-
-      // Untuk debugging, kita bisa lihat apa isi 'result'
-      console.log("Login result:", result);
 
       if (result.error) {
         setIsLoading(false);

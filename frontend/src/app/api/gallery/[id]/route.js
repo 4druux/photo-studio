@@ -1,11 +1,9 @@
-// src/app/api/gallery/[id]/route.js
 import { NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
-import { db } from "@/db"; // koneksi Drizzle
-import { galleryImages } from "@/db/schema"; // skema tabel
+import { db } from "@/db";
+import { galleryImages } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
-// Konfigurasi Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -14,7 +12,6 @@ cloudinary.config({
 });
 
 export async function DELETE(request, { params }) {
-  // Tunggu promise params sebelum mengakses id
   const { id } = await params;
   const publicId = decodeURIComponent(id);
 
@@ -26,7 +23,6 @@ export async function DELETE(request, { params }) {
   }
 
   try {
-    // Hapus di Cloudinary
     await new Promise((resolve, reject) => {
       cloudinary.uploader.destroy(publicId, (error, result) => {
         if (error) {
@@ -41,7 +37,6 @@ export async function DELETE(request, { params }) {
       });
     });
 
-    // Hapus dari database dengan Drizzle
     const deleteResult = await db
       .delete(galleryImages)
       .where(eq(galleryImages.filename, publicId));

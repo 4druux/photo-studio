@@ -1,4 +1,3 @@
-// src/app/api/bookings/[id]/route.js
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { bookings } from "@/db/schema";
@@ -6,7 +5,6 @@ import { eq } from "drizzle-orm";
 
 export async function GET(_request, { params }) {
   try {
-    // Tunggu promise params sebelum destructuring
     const { id } = await params;
 
     const booking = await db.query.bookings.findFirst({
@@ -36,7 +34,6 @@ export async function PATCH(request, { params }) {
     const body = await request.json();
     const { status } = body;
 
-    // Validasi status
     if (!status || !["PENDING", "CONFIRMED", "CANCELLED"].includes(status)) {
       return NextResponse.json(
         { message: "Nilai status tidak valid." },

@@ -9,7 +9,6 @@ export async function POST(request) {
     const data = await request.json();
     const newPublicId = nanoid(10);
 
-    // Langkah 1: Masukkan data baru ke database
     await db.insert(bookings).values({
       publicId: newPublicId,
       nama: data.nama,
@@ -20,7 +19,6 @@ export async function POST(request) {
       updatedAt: new Date(),
     });
 
-    // Langkah 2: Ambil data booking yang baru saja dibuat menggunakan publicId
     const createdBooking = await db.query.bookings.findFirst({
       where: eq(bookings.publicId, newPublicId),
     });

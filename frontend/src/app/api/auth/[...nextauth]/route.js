@@ -1,5 +1,3 @@
-// frontend/src/app/api/auth/[...nextauth]/route.js
-
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
@@ -37,9 +35,8 @@ export const authOptions = {
           return null;
         }
 
-        // Jika berhasil, kembalikan objek user
         return {
-          id: admin.id.toString(), // Pastikan ID adalah string
+          id: admin.id.toString(),
           name: admin.name,
           email: admin.email,
         };
@@ -50,14 +47,12 @@ export const authOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    // Callback untuk menambahkan ID user ke token JWT
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
       }
       return token;
     },
-    // Callback untuk menambahkan ID user dari token ke objek session
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id;
@@ -66,10 +61,10 @@ export const authOptions = {
     },
   },
   pages: {
-    signIn: "/auth/login", // Tentukan halaman login kustom Anda
+    signIn: "/auth/login",
   },
-  secret: process.env.NEXTAUTH_SECRET, // Pastikan variabel ini ada di file .env
-  debug: process.env.NODE_ENV === "development", // Aktifkan debug hanya saat development
+  secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === "development",
 };
 
 const handler = NextAuth(authOptions);

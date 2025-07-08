@@ -1,11 +1,9 @@
-// frontend/src/app/api/auth/forgot-password/route.js
-
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { db } from "@/db"; // Impor koneksi Drizzle
-import { admins } from "@/db/schema"; // Impor skema tabel admins
+import { db } from "@/db";
+import { admins } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { sendPasswordResetEmail } from "@/lib/mailer"; // Kita masih gunakan mailer yang sama
+import { sendPasswordResetEmail } from "@/lib/mailer";
 
 export async function POST(request) {
   try {
@@ -22,7 +20,7 @@ export async function POST(request) {
         .update(resetToken)
         .digest("hex");
 
-      const passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000); // Token berlaku 10 menit
+      const passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000);
 
       await db
         .update(admins)
@@ -41,7 +39,6 @@ export async function POST(request) {
       });
     }
 
-    // Selalu kembalikan respons sukses untuk mencegah user enumeration
     return NextResponse.json({
       message: "Jika email terdaftar, link reset telah dikirim.",
     });
