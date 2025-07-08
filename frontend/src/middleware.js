@@ -1,39 +1,20 @@
-import { NextResponse } from "next/server";
-import { jwtVerify } from "jose";
+// frontend/src/middleware.js
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
+// Impor middleware bawaan dari next-auth
+export { default } from "next-auth/middleware";
 
-export async function middleware(request) {
-  const { pathname } = request.nextUrl;
-  const tokenCookie = request.cookies.get("token");
-
-  if (pathname.startsWith("/auth") && tokenCookie) {
-    try {
-      await jwtVerify(tokenCookie.value, JWT_SECRET);
-      return NextResponse.redirect(new URL("/admin/booking", request.url));
-    } catch (error) {}
-  }
-
-  if (pathname.startsWith("/admin")) {
-    if (!tokenCookie) {
-      return NextResponse.redirect(new URL("/auth/redirecting", request.url));
-    }
-
-    try {
-      await jwtVerify(tokenCookie.value, JWT_SECRET);
-      return NextResponse.next();
-    } catch (error) {
-      const response = NextResponse.redirect(
-        new URL("/auth/redirecting", request.url)
-      );
-      response.cookies.delete("token");
-      return response;
-    }
-  }
-
-  return NextResponse.next();
-}
-
+// Tentukan rute mana yang ingin Anda lindungi
 export const config = {
-  matcher: ["/admin/:path*", "/auth/:path*"],
+  matcher: [
+    /*
+     * Cocokkan semua path rute kecuali untuk file static dan API routes:
+     * - api (API routes)
+     * - _next/static (file static)
+     * - _next/image (file optimasi gambar)
+     * - favicon.ico (file ikon)
+     *
+     * Ini akan melindungi semua halaman di dalam folder /admin
+     */
+    "/admin/:path*",
+  ],
 };

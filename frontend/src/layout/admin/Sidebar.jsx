@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { toast } from "react-hot-toast";
+import { signOut } from "next-auth/react";
 
 const NavLink = ({ item, expanded, onClick }) => {
   const pathname = usePathname();
@@ -63,17 +64,9 @@ export default function Sidebar({
   mobileOpen,
   setMobileOpen,
 }) {
-  const router = useRouter();
-
-  const handleLogout = async () => {
-    try {
-      await fetch("/api/auth/logout", { method: "POST" });
-      toast.success("Logout berhasil!");
-      router.push("/auth/login");
-      router.refresh();
-    } catch (error) {
-      toast.error("Gagal logout, silakan coba lagi.");
-    }
+  const handleLogout = () => {
+    signOut({ callbackUrl: "/auth/login" });
+    toast.success("Logout berhasil!");
   };
 
   const navItems = [

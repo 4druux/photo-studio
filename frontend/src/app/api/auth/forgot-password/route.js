@@ -1,16 +1,18 @@
-import { PrismaClient } from "@prisma/client";
+// frontend/src/app/api/auth/forgot-password/route.js
+
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { sendPasswordResetEmail } from "@/lib/mailer";
-
-const prisma = new PrismaClient();
+import { db } from "@/db"; // Impor koneksi Drizzle
+import { admins } from "@/db/schema"; // Impor skema tabel admins
+import { eq } from "drizzle-orm";
+import { sendPasswordResetEmail } from "@/lib/mailer"; // Kita masih gunakan mailer yang sama
 
 export async function POST(request) {
   try {
     const { email } = await request.json();
 
-    const admin = await prisma.admin.findUnique({
-      where: { email },
+    const admin = await db.query.admins.findFirst({
+      where: eq(admins.email, email),
     });
 
     if (admin) {
@@ -20,15 +22,15 @@ export async function POST(request) {
         .update(resetToken)
         .digest("hex");
 
-      const passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000);
+      const passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000); // Token berlaku 10 menit
 
-      await prisma.admin.update({
-        where: { email },
-        data: {
-          passwordResetToken,
-          passwordResetExpires,
-        },
-      });
+      await db
+        .update(admins)
+        .set({
+          passwordResetToken: passwordResetToken,
+          passwordResetExpires: passwordResetExpires,
+        })
+        .where(eq(admins.email, email));
 
       const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/auth/reset-password?token=${resetToken}`;
 
@@ -39,10 +41,12 @@ export async function POST(request) {
       });
     }
 
-    return NextResponse.json({});
+    // Selalu kembalikan respons sukses untuk mencegah user enumeration
+    return NextResponse.json({
+      message: "Jika email terdaftar, link reset telah dikirim.",
+    });
   } catch (error) {
     console.error("FORGOT PASSWORD ERROR:", error);
-
     return NextResponse.json(
       { message: "Terjadi kesalahan internal pada server." },
       { status: 500 }

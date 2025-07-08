@@ -1,9 +1,11 @@
-import { PrismaClient } from "@prisma/client";
+// frontend/src/app/api/auth/reset-password/route.js
+
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import bcrypt from "bcrypt";
-
-const prisma = new PrismaClient();
+import bcrypt from "bcryptjs";
+import { db } from "@/db"; // Impor koneksi Drizzle
+import { admins } from "@/db/schema"; // Impor skema tabel admins
+import { eq, and, gte } from "drizzle-orm";
 
 export async function POST(request) {
   try {
@@ -18,13 +20,12 @@ export async function POST(request) {
 
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
-    const admin = await prisma.admin.findFirst({
-      where: {
-        passwordResetToken: hashedToken,
-        passwordResetExpires: {
-          gte: new Date(),
-        },
-      },
+    // Cari admin dengan token yang valid dan belum kedaluwarsa
+    const admin = await db.query.admins.findFirst({
+      where: and(
+        eq(admins.passwordResetToken, hashedToken),
+        gte(admins.passwordResetExpires, new Date())
+      ),
     });
 
     if (!admin) {
@@ -36,16 +37,17 @@ export async function POST(request) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await prisma.admin.update({
-      where: { id: admin.id },
-      data: {
+    // Perbarui password dan hapus token reset
+    await db
+      .update(admins)
+      .set({
         password: hashedPassword,
         passwordResetToken: null,
         passwordResetExpires: null,
-      },
-    });
+      })
+      .where(eq(admins.id, admin.id));
 
-    return NextResponse.json({});
+    return NextResponse.json({ message: "Password berhasil direset!" });
   } catch (error) {
     console.error("RESET PASSWORD ERROR:", error);
     return NextResponse.json(

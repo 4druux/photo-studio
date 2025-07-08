@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import { v2 as cloudinary } from "cloudinary";
-
-const prisma = new PrismaClient();
+import { db } from "@/db";
+import {
+  galleryImages,
+  categories,
+  galleryImagesToCategories,
+} from "@/db/schema";
+import { inArray, sql } from "drizzle-orm";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -24,12 +28,12 @@ export async function POST(request) {
       );
     }
 
-    const uploadedImages = [];
+    const uploadedImagesData = [];
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       const metadata = JSON.parse(metadataArray[i]);
-      const { categories, width, height } = metadata;
+      const { categories: categoryNames, width, height } = metadata;
 
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
@@ -54,26 +58,41 @@ export async function POST(request) {
         throw new Error("Gagal mengunggah file ke Cloudinary.");
       }
 
-      const newImage = await prisma.galleryImage.create({
-        data: {
-          filename: uploadResult.public_id,
-          url: uploadResult.secure_url,
-          width: width,
-          height: height,
-          categories: {
-            connectOrCreate: categories.map((categoryName) => ({
-              where: { name: categoryName },
-              create: { name: categoryName },
-            })),
-          },
-        },
+      const [newImage] = await db.insert(galleryImages).values({
+        filename: uploadResult.public_id,
+        url: uploadResult.secure_url,
+        width: width,
+        height: height,
       });
-      uploadedImages.push(newImage);
+
+      const newImageId = newImage.insertId;
+
+      if (categoryNames && categoryNames.length > 0) {
+        await db
+          .insert(categories)
+          .values(categoryNames.map((name) => ({ name })))
+          .onDuplicateKeyUpdate({ set: { name: sql`name` } });
+
+        const relevantCategories = await db
+          .select({ id: categories.id })
+          .from(categories)
+          .where(inArray(categories.name, categoryNames));
+
+        if (relevantCategories.length > 0) {
+          await db.insert(galleryImagesToCategories).values(
+            relevantCategories.map((cat) => ({
+              galleryImageId: newImageId,
+              categoryId: cat.id,
+            }))
+          );
+        }
+      }
+      uploadedImagesData.push(newImage);
     }
 
     return NextResponse.json({
       success: true,
-      message: `${uploadedImages.length} gambar berhasil di-upload.`,
+      message: `${uploadedImagesData.length} gambar berhasil di-upload.`,
     });
   } catch (error) {
     console.error("Error di server saat upload:", error);
@@ -81,7 +100,5 @@ export async function POST(request) {
       { success: false, message: "Terjadi kesalahan pada server." },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

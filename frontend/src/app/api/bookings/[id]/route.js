@@ -1,15 +1,16 @@
-import { PrismaClient } from "@prisma/client";
+// src/app/api/bookings/[id]/route.js
 import { NextResponse } from "next/server";
+import { db } from "@/db";
+import { bookings } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
-const prisma = new PrismaClient();
-
-export async function GET(request, { params }) {
+export async function GET(_request, { params }) {
   try {
-    const { id } = params;
-    const booking = await prisma.booking.findUnique({
-      where: {
-        publicId: id,
-      },
+    // Tunggu promise params sebelum destructuring
+    const { id } = await params;
+
+    const booking = await db.query.bookings.findFirst({
+      where: eq(bookings.publicId, id),
     });
 
     if (!booking) {
@@ -31,10 +32,11 @@ export async function GET(request, { params }) {
 
 export async function PATCH(request, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const { status } = body;
 
+    // Validasi status
     if (!status || !["PENDING", "CONFIRMED", "CANCELLED"].includes(status)) {
       return NextResponse.json(
         { message: "Nilai status tidak valid." },
@@ -42,26 +44,21 @@ export async function PATCH(request, { params }) {
       );
     }
 
-    const updatedBooking = await prisma.booking.update({
-      where: {
-        publicId: id,
-      },
-      data: {
-        status: status,
-      },
-    });
+    const updatedResult = await db
+      .update(bookings)
+      .set({ status: status, updatedAt: new Date() })
+      .where(eq(bookings.publicId, id));
 
-    return NextResponse.json(updatedBooking, { status: 200 });
-  } catch (error) {
-    console.error("[ERROR_UPDATE_BOOKING_STATUS]", error);
-
-    if (error.code === "P2025") {
+    if (updatedResult.affectedRows === 0) {
       return NextResponse.json(
-        { message: `Booking dengan ID ${params.id} tidak ditemukan.` },
+        { message: `Booking dengan ID ${id} tidak ditemukan.` },
         { status: 404 }
       );
     }
 
+    return NextResponse.json({ success: true }, { status: 200 });
+  } catch (error) {
+    console.error("[ERROR_UPDATE_BOOKING_STATUS]", error);
     return NextResponse.json(
       { message: "Terjadi kesalahan pada server saat memperbarui status." },
       { status: 500 }

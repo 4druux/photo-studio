@@ -7,6 +7,7 @@ import { toast } from "react-hot-toast";
 import { Loader2, Eye, EyeOff, AlertCircle } from "lucide-react";
 import DotLoader from "@/components/loading/dotloader";
 import Image from "next/image";
+import { signIn } from "next-auth/react";
 
 const validateEmail = (email) => {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -64,15 +65,8 @@ export default function SignInForm() {
     e.preventDefault();
     const newErrors = {};
 
-    if (!email) {
-      newErrors.email = "Email wajib diisi.";
-    } else if (!validateEmail(email)) {
-      newErrors.email = "Format email tidak valid.";
-    }
-
-    if (!password) {
-      newErrors.password = "Password wajib diisi.";
-    }
+    if (!email) newErrors.email = "Email wajib diisi.";
+    if (!password) newErrors.password = "Password wajib diisi.";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -84,29 +78,32 @@ export default function SignInForm() {
     setAuthError("");
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+      const result = await signIn("credentials", {
+        redirect: false,
+        email: email,
+        password: password,
       });
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          setAuthError("Email atau Kata Sandi salah.");
-        } else {
-          const data = await response.json();
-          throw new Error(data.message || "Gagal login. Silakan coba lagi.");
-        }
-        setIsLoading(false);
-        return;
-      }
+      // Untuk debugging, kita bisa lihat apa isi 'result'
+      console.log("Login result:", result);
 
-      toast.success("Login berhasil!");
-      setIsRedirecting(true);
-      router.push("/admin/booking");
+      if (result.error) {
+        setIsLoading(false);
+        setAuthError("Email atau Kata Sandi salah.");
+      }
+      if (result.error) {
+        toast.error("Email atau Kata Sandi salah.");
+      } else if (result.ok) {
+        toast.success("Login berhasil!");
+        router.push("/admin/booking");
+      } else {
+        setIsLoading(false);
+        toast.error("Login gagal karena alasan yang tidak diketahui.");
+      }
     } catch (error) {
-      toast.error(error.message);
       setIsLoading(false);
+      toast.error("Terjadi kesalahan yang tidak terduga.");
+      console.error("Login error:", error);
     }
   };
 

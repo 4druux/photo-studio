@@ -1,9 +1,11 @@
+// src/app/api/gallery/[id]/route.js
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import { v2 as cloudinary } from "cloudinary";
+import { db } from "@/db"; // koneksi Drizzle
+import { galleryImages } from "@/db/schema"; // skema tabel
+import { eq } from "drizzle-orm";
 
-const prisma = new PrismaClient();
-
+// Konfigurasi Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -12,7 +14,9 @@ cloudinary.config({
 });
 
 export async function DELETE(request, { params }) {
-  const publicId = decodeURIComponent(params.id);
+  // Tunggu promise params sebelum mengakses id
+  const { id } = await params;
+  const publicId = decodeURIComponent(id);
 
   if (!publicId) {
     return NextResponse.json(
@@ -22,6 +26,7 @@ export async function DELETE(request, { params }) {
   }
 
   try {
+    // Hapus di Cloudinary
     await new Promise((resolve, reject) => {
       cloudinary.uploader.destroy(publicId, (error, result) => {
         if (error) {
@@ -36,9 +41,17 @@ export async function DELETE(request, { params }) {
       });
     });
 
-    await prisma.galleryImage.delete({
-      where: { filename: publicId },
-    });
+    // Hapus dari database dengan Drizzle
+    const deleteResult = await db
+      .delete(galleryImages)
+      .where(eq(galleryImages.filename, publicId));
+
+    if (deleteResult.affectedRows === 0) {
+      return NextResponse.json(
+        { success: false, message: "Gambar tidak ditemukan di database." },
+        { status: 404 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
@@ -46,14 +59,6 @@ export async function DELETE(request, { params }) {
     });
   } catch (error) {
     console.error("Error saat menghapus gambar:", error);
-
-    if (error.code === "P2025") {
-      return NextResponse.json(
-        { success: false, message: "Gambar tidak ditemukan di database." },
-        { status: 404 }
-      );
-    }
-
     return NextResponse.json(
       {
         success: false,
@@ -61,7 +66,5 @@ export async function DELETE(request, { params }) {
       },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

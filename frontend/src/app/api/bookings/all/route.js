@@ -1,24 +1,21 @@
-import { PrismaClient } from "@prisma/client";
-import { NextResponse } from "next/server";
+// frontend/src/app/api/bookings/all/route.js
 
-const prisma = new PrismaClient();
+import { NextResponse } from "next/server";
+import { db } from "@/db"; // Impor koneksi Drizzle
+import { bookings } from "@/db/schema"; // Impor skema tabel
+import { desc } from "drizzle-orm";
 
 export async function GET() {
   try {
-    const bookings = await prisma.booking.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    // Menggunakan Drizzle untuk mengambil semua data dari tabel bookings
+    // .orderBy() untuk mengurutkan, desc() untuk descending
+    const allBookings = await db
+      .select()
+      .from(bookings)
+      .orderBy(desc(bookings.createdAt));
 
-    const sanitizedBookings = bookings.map((b) => ({
-      ...b,
-      tanggal: b.tanggal.toISOString(),
-      createdAt: b.createdAt.toISOString(),
-      updatedAt: b.updatedAt.toISOString(),
-    }));
-
-    return NextResponse.json(sanitizedBookings, { status: 200 });
+    // Sanitasi data tidak lagi diperlukan karena Drizzle mengembalikan format yang sudah sesuai
+    return NextResponse.json(allBookings, { status: 200 });
   } catch (error) {
     console.error("Gagal mengambil data booking:", error);
     return NextResponse.json(
