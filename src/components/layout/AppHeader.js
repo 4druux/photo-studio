@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 
 function AppHeader() {
   const [isTop, setIsTop] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState("home");
+  const location = useLocation();
 
   const navLinks = [
-    { href: "#home", label: "Home" },
-    { href: "#about", label: "About" },
-    { href: "#gallery", label: "Gallery" },
-    { href: "#schedule", label: "Schedule" },
+    { href: "/", label: "Home" },
+    { href: "/about", label: "About" },
+    { href: "/gallery", label: "Gallery" },
+    { href: "/services", label: "Services" },
+    { href: "/contact", label: "Contact" },
   ];
 
   useEffect(() => {
@@ -28,50 +30,21 @@ function AppHeader() {
     };
   }, [isMobileMenuOpen]);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-          }
-        });
-      },
-      { rootMargin: "-30% 0px -70% 0px" } 
-    );
-
-    navLinks.forEach((link) => {
-      const element = document.querySelector(link.href);
-      if (element) {
-        observer.observe(element);
-      }
-    });
-
-    return () => observer.disconnect();
-  }, [navLinks]);
-
-  const handleScrollLink = (e, href) => {
-    e.preventDefault();
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-    closeMenu();
-  };
-
   const closeMenu = () => setIsMobileMenuOpen(false);
 
   const navLinkClass = (path) =>
-    `relative text-md font-semibold text-gray-500 transition-colors duration-300 group`;
+    `relative text-md font-semibold transition-colors duration-300 group ${
+      location.pathname === path ? "text-teal-600" : "text-gray-500 hover:text-teal-600"
+    }`;
 
   const navLinkSpanClass = (path) =>
     `absolute bottom-[-6px] left-1/2 -translate-x-1/2 h-0.5 bg-teal-600 transition-all duration-300 ease-out ${
-      `#${activeSection}` === path ? "w-1/2" : "w-0 group-hover:w-full"
+      location.pathname === path ? "w-1/2" : "w-0 group-hover:w-full"
     }`;
 
   const mobileNavLinkClass = (path) =>
     `block py-3 px-4 text-lg font-medium rounded-xl transition-colors ${
-      `#${activeSection}` === path ? "bg-teal-100 text-teal-600" : "text-gray-500"
+      location.pathname === path ? "bg-teal-100 text-teal-600" : "text-gray-500 hover:bg-gray-100"
     }`;
 
   const overlayVariants = { visible: { opacity: 1 }, hidden: { opacity: 0 } };
@@ -96,34 +69,36 @@ function AppHeader() {
         }`}
       >
         <div className="container mx-auto flex items-center justify-between px-4 py-4">
-          <a href="#home" onClick={(e) => handleScrollLink(e, "#home")}>
+          <Link to="/">
             <img
               src="/images/logo.png"
               alt="Antika Studio logo"
               className="cursor-pointer w-[100px] md:w-[150px] h-auto"
             />
-          </a>
+          </Link>
 
           <nav className="hidden md:flex items-center space-x-12">
             {navLinks.map((link) => (
               <div key={link.href} className="relative">
-                <a
-                  href={link.href}
-                  onClick={(e) => handleScrollLink(e, link.href)}
+                <Link
+                  to={link.href}
                   className={navLinkClass(link.href)}
                 >
-                  <span
-                    className={
-                      `#${activeSection}` === link.href ? "text-teal-600" : ""
-                    }
-                  >
-                    {link.label}
-                  </span>
-                </a>
+                  {link.label}
+                </Link>
                 <span className={navLinkSpanClass(link.href)} />
               </div>
             ))}
           </nav>
+
+          <div className="hidden md:flex items-center space-x-4">
+            <Link
+              to="/admin"
+              className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              Admin
+            </Link>
+          </div>
 
           <div className="md:hidden">
             <button
@@ -168,15 +143,24 @@ function AppHeader() {
               >
                 {navLinks.map((link) => (
                   <motion.div key={link.href} variants={itemVariants}>
-                    <a
-                      href={link.href}
-                      onClick={(e) => handleScrollLink(e, link.href)}
+                    <Link
+                      to={link.href}
+                      onClick={closeMenu}
                       className={mobileNavLinkClass(link.href)}
                     >
                       {link.label}
-                    </a>
+                    </Link>
                   </motion.div>
                 ))}
+                <motion.div variants={itemVariants} className="pt-4 border-t">
+                  <Link
+                    to="/admin"
+                    onClick={closeMenu}
+                    className="block py-3 px-4 text-lg font-medium rounded-xl text-gray-500 hover:bg-gray-100"
+                  >
+                    Admin Panel
+                  </Link>
+                </motion.div>
               </motion.nav>
             </motion.div>
           </>
